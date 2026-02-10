@@ -45,6 +45,10 @@ Phillyzon is a bilingual (EN/ES) restaurant website for a Philly cheesesteak and
 - Language persisted in localStorage
 
 ## Design
-- Dark charcoal background, gold/mustard accents
-- Playfair Display serif for headings, Inter sans-serif for body
+- Dark charcoal background (warm-tinted hsl(30 8% 7%)) with warm amber/gold accents
+- Classic movie theatre + restaurant atmosphere: warm, appetizing, cinematic but not overdone
+- **Fonts**: Playfair Display serif for headings, Inter sans-serif for body, Bebas Neue display/condensed for cinematic headers and prices
+- **CSS utility classes**: `.marquee-header` (cinema-style bordered heading with inner glow), `.star-divider` (decorative gold star with gradient lines), `.film-grain` (subtle texture overlay via pseudo-element), `.gold-text` (warm gold color), `.font-display` (Bebas Neue), `.marquee-glow` (subtle pulsing glow animation), `.warm-vignette` (radial gradient edge darkening), `.film-strip-border` (decorative film strip side borders)
 - Theme always dark (no light mode toggle)
+- User's attached movie-poster images used as hero backgrounds and atmospheric overlays
+- Menu styled after the actual restaurant menu: marquee category headers, list layout with divider lines, uppercase item names, italic descriptions, display font prices
