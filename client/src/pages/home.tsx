@@ -9,36 +9,61 @@ import { ArrowRight, Star } from "lucide-react";
 import { formatPrice } from "@/lib/i18n";
 import type { MenuItem } from "@shared/schema";
 import logoImage from "@assets/AISelect_20260209_183938_Instagram_1770702468454.jpg";
+import heroImage1 from "@assets/Screenshot_2026-02-10_112633_1770751825144.png";
+import heroImage2 from "@assets/Screenshot_2026-02-10_112516_1770751825145.png";
+import foodImage from "@assets/Screenshot_2026-02-10_112713_1770751825144.png";
 
 function HeroSection() {
   const { t } = useLanguage();
   return (
     <section className="relative overflow-visible" data-testid="section-hero">
-      <div className="relative bg-card min-h-[60vh] md:min-h-[70vh] flex items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-card/80 to-background" />
-        <div className="absolute inset-0 flex items-center justify-center opacity-10">
-          <img src={logoImage} alt="" className="w-80 h-80 object-contain" />
+      <div className="relative min-h-[75vh] md:min-h-[85vh] flex items-center justify-center">
+        <div className="absolute inset-0 overflow-hidden">
+          <img
+            src={heroImage1}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/70 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80" />
         </div>
-        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto py-16">
-          <div className="mb-6 flex justify-center">
-            <img src={logoImage} alt="Phillyzon" className="w-32 h-32 md:w-40 md:h-40 rounded-md object-cover" data-testid="img-hero-logo" />
+
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto py-16">
+          <div className="mb-8 flex justify-center">
+            <img
+              src={logoImage}
+              alt="Phillyzon"
+              className="w-28 h-28 md:w-36 md:h-36 rounded-md object-cover border-2 border-primary/30"
+              data-testid="img-hero-logo"
+            />
           </div>
-          <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold gold-text mb-4 leading-tight" data-testid="text-hero-tagline">
+
+          <h1
+            className="font-display text-5xl md:text-7xl lg:text-8xl gold-text mb-4 tracking-wider"
+            data-testid="text-hero-tagline"
+          >
             {t("hero.tagline")}
           </h1>
-          <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-xl mx-auto" data-testid="text-hero-subtitle">
+
+          <div className="star-divider my-6">
+            <Star className="h-3 w-3 fill-current" />
+          </div>
+
+          <p
+            className="text-base md:text-lg text-foreground/70 mb-10 max-w-xl mx-auto font-light italic font-serif"
+            data-testid="text-hero-subtitle"
+          >
             {t("hero.subtitle")}
           </p>
+
           <Link href="/menu">
-            <Button size="lg" className="font-serif text-base" data-testid="button-hero-cta">
+            <Button size="lg" className="font-display text-lg tracking-wider px-8" data-testid="button-hero-cta">
               {t("hero.cta")}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
         </div>
       </div>
-
-      <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
     </section>
   );
 }
@@ -46,14 +71,69 @@ function HeroSection() {
 function StorySection() {
   const { t } = useLanguage();
   return (
-    <section className="py-16 md:py-20 px-4" data-testid="section-story">
-      <div className="max-w-3xl mx-auto text-center">
-        <h2 className="font-serif text-2xl md:text-3xl font-bold gold-text mb-6" data-testid="text-story-title">
-          {t("home.story.title")}
+    <section className="py-20 md:py-28 px-4 film-grain" data-testid="section-story">
+      <div className="max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+          <div className="relative">
+            <div className="rounded-md overflow-hidden">
+              <img
+                src={foodImage}
+                alt="El arte de la comida"
+                className="w-full h-72 md:h-96 object-cover"
+              />
+            </div>
+            <div className="absolute -bottom-3 -right-3 w-24 h-24 border-2 border-primary/20 rounded-md" />
+          </div>
+
+          <div>
+            <h2
+              className="marquee-header text-2xl md:text-3xl mb-8"
+              data-testid="text-story-title"
+            >
+              {t("home.story.title")}
+            </h2>
+            <p
+              className="text-foreground/60 leading-relaxed text-base md:text-lg font-light"
+              data-testid="text-story-body"
+            >
+              {t("home.story.text")}
+            </p>
+
+            <div className="star-divider mt-8">
+              <Star className="h-3 w-3 fill-current" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CinemaShowcase() {
+  const { t } = useLanguage();
+  return (
+    <section className="py-16 md:py-24 relative" data-testid="section-cinema">
+      <div className="absolute inset-0 overflow-hidden">
+        <img
+          src={heroImage2}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-15"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/85 to-background" />
+      </div>
+
+      <div className="relative z-10 max-w-5xl mx-auto px-4 text-center">
+        <h2 className="font-display text-3xl md:text-5xl gold-text tracking-wider mb-4">
+          PHILLYZON
         </h2>
-        <div className="h-px w-16 bg-primary mx-auto mb-6" />
-        <p className="text-muted-foreground leading-relaxed text-base md:text-lg" data-testid="text-story-body">
-          {t("home.story.text")}
+        <p className="font-display text-xl md:text-2xl text-foreground/50 tracking-widest mb-2">
+          MEDELLIN, COLOMBIA
+        </p>
+        <div className="star-divider my-6">
+          <Star className="h-3 w-3 fill-current" />
+        </div>
+        <p className="font-serif italic text-foreground/50 text-lg max-w-lg mx-auto">
+          {t("home.story.text").split(".")[0]}.
         </p>
       </div>
     </section>
@@ -67,20 +147,22 @@ function FeaturedSection() {
   });
 
   return (
-    <section className="py-16 md:py-20 px-4 bg-card" data-testid="section-featured">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-10">
-          <h2 className="font-serif text-2xl md:text-3xl font-bold gold-text mb-2" data-testid="text-featured-title">
+    <section className="py-16 md:py-24 px-4 relative film-grain" data-testid="section-featured">
+      <div className="relative z-10 max-w-6xl mx-auto">
+        <div className="text-center mb-12">
+          <h2
+            className="marquee-header text-2xl md:text-3xl marquee-glow"
+            data-testid="text-featured-title"
+          >
             {t("home.featured")}
           </h2>
-          <div className="h-px w-16 bg-primary mx-auto" />
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[1, 2, 3].map((i) => (
-              <Card key={i} className="p-5">
-                <Skeleton className="h-40 w-full mb-4 rounded-md" />
+              <Card key={i} className="p-6">
+                <Skeleton className="h-48 w-full mb-4 rounded-md" />
                 <Skeleton className="h-5 w-3/4 mb-2" />
                 <Skeleton className="h-4 w-full mb-1" />
                 <Skeleton className="h-4 w-2/3" />
@@ -88,34 +170,55 @@ function FeaturedSection() {
             ))}
           </div>
         ) : items && items.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {items.map((item) => (
-              <Card key={item.id} className="p-5 hover-elevate" data-testid={`card-featured-${item.id}`}>
+              <Card
+                key={item.id}
+                className="p-0 overflow-visible hover-elevate group"
+                data-testid={`card-featured-${item.id}`}
+              >
                 {item.imageUrl && (
-                  <div className="mb-4 rounded-md overflow-visible">
-                    <img src={item.imageUrl} alt={bilingual(item, "name")} className="w-full h-40 object-cover rounded-md" />
+                  <div className="overflow-hidden rounded-t-md">
+                    <img
+                      src={item.imageUrl}
+                      alt={bilingual(item, "name")}
+                      className="w-full h-48 object-cover"
+                    />
                   </div>
                 )}
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-serif text-lg font-semibold gold-text" data-testid={`text-featured-name-${item.id}`}>
-                    {bilingual(item, "name")}
-                  </h3>
-                  <Star className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
+                <div className="p-5">
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <h3
+                      className="font-serif text-lg font-semibold gold-text"
+                      data-testid={`text-featured-name-${item.id}`}
+                    >
+                      {bilingual(item, "name")}
+                    </h3>
+                    <Star className="h-4 w-4 text-primary flex-shrink-0 mt-1 fill-primary/30" />
+                  </div>
+                  <p
+                    className="text-sm text-foreground/50 mb-4 line-clamp-2 italic"
+                    data-testid={`text-featured-desc-${item.id}`}
+                  >
+                    {bilingual(item, "description")}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <p
+                      className="font-display text-2xl gold-text tracking-wider"
+                      data-testid={`text-featured-price-${item.id}`}
+                    >
+                      ${formatPrice(item.price)}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground mb-3 line-clamp-2" data-testid={`text-featured-desc-${item.id}`}>
-                  {bilingual(item, "description")}
-                </p>
-                <p className="font-serif text-lg font-bold gold-text" data-testid={`text-featured-price-${item.id}`}>
-                  ${formatPrice(item.price)}
-                </p>
               </Card>
             ))}
           </div>
         ) : null}
 
-        <div className="text-center mt-10">
+        <div className="text-center mt-12">
           <Link href="/menu">
-            <Button variant="outline" className="font-serif" data-testid="button-featured-viewmenu">
+            <Button variant="outline" className="font-display text-base tracking-wider px-8" data-testid="button-featured-viewmenu">
               {t("hero.cta")}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -131,6 +234,7 @@ export default function Home() {
     <PublicLayout>
       <HeroSection />
       <StorySection />
+      <CinemaShowcase />
       <FeaturedSection />
     </PublicLayout>
   );
