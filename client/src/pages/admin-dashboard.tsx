@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Pencil, Trash2, LayoutDashboard, UtensilsCrossed, Tag, Megaphone } from "lucide-react";
+import { LogOut, Plus, Pencil, Trash2, LayoutDashboard, UtensilsCrossed, Tag, Megaphone, Upload, X, ImageIcon, Loader2 } from "lucide-react";
 import type { MenuCategory, MenuItem, Promotion } from "@shared/schema";
 import logoImage from "@assets/AISelect_20260209_183938_Instagram_1770702468454.jpg";
 
@@ -192,6 +192,114 @@ function CategoriesTab() {
   );
 }
 
+function ImageUploader({
+  imageUrl,
+  onImageChange,
+  testIdPrefix,
+}: {
+  imageUrl: string;
+  onImageChange: (url: string) => void;
+  testIdPrefix: string;
+}) {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Upload failed");
+      onImageChange(data.imageUrl);
+    } catch (err: any) {
+      toast({ title: err?.message || t("error"), variant: "destructive" });
+    } finally {
+      setUploading(false);
+      if (e.target) e.target.value = "";
+    }
+  };
+
+  const handleRemove = async () => {
+    if (imageUrl) {
+      try {
+        await apiRequest("DELETE", "/api/admin/upload", { imageUrl });
+      } catch {}
+    }
+    onImageChange("");
+  };
+
+  return (
+    <div>
+      <Label>{t("admin.uploadImage")}</Label>
+      <div className="mt-1">
+        {imageUrl ? (
+          <div className="relative inline-block">
+            <img
+              src={imageUrl}
+              alt=""
+              className="w-24 h-24 rounded-md object-cover border border-border"
+              data-testid={`${testIdPrefix}-preview`}
+            />
+            <div className="absolute -top-3 -right-3">
+              <Button
+                type="button"
+                size="icon"
+                variant="destructive"
+                onClick={handleRemove}
+                data-testid={`${testIdPrefix}-remove`}
+              >
+                <X />
+              </Button>
+            </div>
+            <label className="mt-2 block">
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleUpload}
+                className="hidden"
+                data-testid={`${testIdPrefix}-change`}
+              />
+              <Button type="button" size="sm" variant="outline" className="w-full mt-1" onClick={(e) => {
+                const input = (e.currentTarget.parentElement as HTMLLabelElement).querySelector("input");
+                input?.click();
+              }}>
+                {t("admin.changeImage")}
+              </Button>
+            </label>
+          </div>
+        ) : (
+          <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-border rounded-md cursor-pointer hover-elevate">
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleUpload}
+              className="hidden"
+              data-testid={`${testIdPrefix}-input`}
+            />
+            {uploading ? (
+              <Loader2 className="h-6 w-6 text-muted-foreground animate-spin" />
+            ) : (
+              <>
+                <ImageIcon className="h-6 w-6 text-muted-foreground mb-1" />
+                <span className="text-xs text-muted-foreground">{t("admin.uploadImage")}</span>
+              </>
+            )}
+          </label>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function MenuItemForm({
   initial,
   categories,
@@ -226,7 +334,7 @@ function MenuItemForm({
       categoryId: parseInt(categoryId),
       featured,
       visible,
-      imageUrl: imageUrl.trim() || null,
+      imageUrl: imageUrl || null,
     });
   };
 
@@ -252,7 +360,7 @@ function MenuItemForm({
           <Textarea value={descEs} onChange={(e) => setDescEs(e.target.value)} required className="mt-1" data-testid="input-item-desc-es" />
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
         <div>
           <Label>{t("admin.price")}</Label>
           <Input value={price} onChange={(e) => setPrice(e.target.value)} required className="mt-1" data-testid="input-item-price" />
@@ -270,10 +378,7 @@ function MenuItemForm({
             </SelectContent>
           </Select>
         </div>
-        <div>
-          <Label>{t("admin.imageUrl")}</Label>
-          <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="mt-1" data-testid="input-item-image" />
-        </div>
+        <ImageUploader imageUrl={imageUrl} onImageChange={setImageUrl} testIdPrefix="item-image" />
       </div>
       <div className="flex items-center gap-6 flex-wrap">
         <div className="flex items-center gap-2">
@@ -369,6 +474,9 @@ function MenuItemsTab() {
               ) : (
                 <Card className="p-4" data-testid={`card-admin-item-${item.id}`}>
                   <div className="flex items-center justify-between gap-4 flex-wrap">
+                    {item.imageUrl && (
+                      <img src={item.imageUrl} alt="" className="w-12 h-12 rounded-md object-cover border border-border flex-shrink-0" />
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-medium text-foreground">{item.nameEn} / {item.nameEs}</p>
@@ -460,7 +568,7 @@ function PromotionForm({
           <Textarea value={descEs} onChange={(e) => setDescEs(e.target.value)} required className="mt-1" data-testid="input-promo-desc-es" />
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
         <div>
           <Label>{t("admin.startDate")}</Label>
           <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="mt-1" data-testid="input-promo-start" />
@@ -469,10 +577,7 @@ function PromotionForm({
           <Label>{t("admin.endDate")}</Label>
           <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="mt-1" data-testid="input-promo-end" />
         </div>
-        <div>
-          <Label>{t("admin.imageUrl")}</Label>
-          <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="mt-1" data-testid="input-promo-image" />
-        </div>
+        <ImageUploader imageUrl={imageUrl} onImageChange={setImageUrl} testIdPrefix="promo-image" />
       </div>
       <div className="flex items-center gap-2">
         <Switch checked={active} onCheckedChange={setActive} data-testid="switch-promo-active" />

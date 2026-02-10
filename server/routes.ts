@@ -2,6 +2,10 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import session from "express-session";
 import { createHash } from "crypto";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import express from "express";
 import { storage } from "./storage";
 import { seedDatabase } from "./seed";
 import {
@@ -9,6 +13,33 @@ import {
   insertMenuItemSchema,
   insertPromotionSchema,
 } from "@shared/schema";
+
+const uploadsDir = path.resolve(process.cwd(), "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const multerStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, uploadsDir),
+  filename: (_req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, uniqueSuffix + ext);
+  },
+});
+
+const upload = multer({
+  storage: multerStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  },
+});
 
 declare module "express-session" {
   interface SessionData {
@@ -47,6 +78,38 @@ export async function registerRoutes(
   );
 
   await seedDatabase();
+
+  app.use("/uploads", express.static(uploadsDir));
+
+  app.post("/api/admin/upload", requireAdmin, (req: Request, res: Response) => {
+    upload.single("image")(req, res, (err: any) => {
+      if (err) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+          return res.status(400).json({ message: "File too large. Maximum size is 5MB." });
+        }
+        if (err.message === "Only image files are allowed") {
+          return res.status(400).json({ message: err.message });
+        }
+        return res.status(500).json({ message: "Upload failed" });
+      }
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      const imageUrl = `/uploads/${req.file.filename}`;
+      res.json({ imageUrl });
+    });
+  });
+
+  app.delete("/api/admin/upload", requireAdmin, (req: Request, res: Response) => {
+    const { imageUrl } = req.body;
+    if (imageUrl && typeof imageUrl === "string" && imageUrl.startsWith("/uploads/")) {
+      const filePath = path.join(uploadsDir, path.basename(imageUrl));
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+    res.json({ message: "Deleted" });
+  });
 
   app.get("/api/categories", async (_req, res) => {
     const categories = await storage.getCategories();
