@@ -12,6 +12,8 @@ import {
   insertMenuCategorySchema,
   insertMenuItemSchema,
   insertPromotionSchema,
+  createOrderRequestSchema,
+  orderStatusEnum,
 } from "@shared/schema";
 
 const uploadsDir = path.resolve(process.cwd(), "uploads");
@@ -227,6 +229,65 @@ export async function registerRoutes(
     const id = parseInt(req.params.id as string);
     await storage.deletePromotion(id);
     res.json({ message: "Deleted" });
+  });
+
+  app.post("/api/orders", async (req, res) => {
+    const parsed = createOrderRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: "Invalid order data", errors: parsed.error.flatten() });
+    }
+
+    const { deviceId, items: requestItems } = parsed.data;
+
+    const menuItemIds = requestItems.map((i) => i.menuItemId);
+    const allMenuItems = await storage.getMenuItems();
+    const menuMap = new Map(allMenuItems.filter((m) => m.visible).map((m) => [m.id, m]));
+
+    const missingIds = menuItemIds.filter((id) => !menuMap.has(id));
+    if (missingIds.length > 0) {
+      return res.status(400).json({ message: `Items not available: ${missingIds.join(", ")}` });
+    }
+
+    let total = 0;
+    const orderItemsData = requestItems.map((ri) => {
+      const menuItem = menuMap.get(ri.menuItemId)!;
+      const itemPrice = parseFloat(menuItem.price);
+      total += itemPrice * ri.quantity;
+      return {
+        menuItemId: ri.menuItemId,
+        nameEn: menuItem.nameEn,
+        nameEs: menuItem.nameEs,
+        price: menuItem.price,
+        quantity: ri.quantity,
+      };
+    });
+
+    try {
+      const order = await storage.createOrder(total.toFixed(2), deviceId, orderItemsData);
+      res.status(201).json({ orderNumber: order.orderNumber, orderId: order.id, total: order.total });
+    } catch (err) {
+      console.error("Order creation failed:", err);
+      res.status(500).json({ message: "Failed to create order" });
+    }
+  });
+
+  app.get("/api/admin/orders", requireAdmin, async (_req, res) => {
+    const orderList = await storage.getOrders();
+    res.json(orderList);
+  });
+
+  app.patch("/api/admin/orders/:id/status", requireAdmin, async (req, res) => {
+    const id = parseInt(req.params.id as string);
+    if (isNaN(id)) return res.status(400).json({ message: "Invalid order ID" });
+
+    const statusParsed = orderStatusEnum.safeParse(req.body.status);
+    if (!statusParsed.success) {
+      return res.status(400).json({ message: "Invalid status. Must be: pending, preparing, or completed" });
+    }
+
+    const order = await storage.updateOrderStatus(id, statusParsed.data);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    res.json(order);
   });
 
   return httpServer;

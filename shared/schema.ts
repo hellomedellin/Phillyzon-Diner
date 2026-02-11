@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, serial } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, serial, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -67,6 +67,45 @@ export const siteContent = pgTable("site_content", {
 export const insertSiteContentSchema = createInsertSchema(siteContent).omit({ id: true });
 export type InsertSiteContent = z.infer<typeof insertSiteContentSchema>;
 export type SiteContent = typeof siteContent.$inferSelect;
+
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  orderNumber: serial("order_number").notNull(),
+  status: text("status").notNull().default("pending"),
+  total: decimal("total", { precision: 10, scale: 2 }).notNull(),
+  deviceId: text("device_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, orderNumber: true, createdAt: true });
+export type InsertOrder = z.infer<typeof insertOrderSchema>;
+export type Order = typeof orders.$inferSelect;
+
+export const orderItems = pgTable("order_items", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").notNull(),
+  menuItemId: integer("menu_item_id"),
+  nameEn: text("name_en").notNull(),
+  nameEs: text("name_es").notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  quantity: integer("quantity").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertOrderItemSchema = createInsertSchema(orderItems).omit({ id: true, createdAt: true });
+export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
+export type OrderItem = typeof orderItems.$inferSelect;
+
+export const createOrderRequestSchema = z.object({
+  deviceId: z.string().min(1),
+  items: z.array(z.object({
+    menuItemId: z.number().int().positive(),
+    quantity: z.number().int().positive().max(99),
+  })).min(1),
+});
+export type CreateOrderRequest = z.infer<typeof createOrderRequestSchema>;
+
+export const orderStatusEnum = z.enum(["pending", "preparing", "completed"]);
 
 export type User = typeof adminUsers.$inferSelect;
 export type InsertUser = InsertAdminUser;

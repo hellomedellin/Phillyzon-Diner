@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { db } from "./db";
 import {
   adminUsers,
@@ -6,6 +6,8 @@ import {
   menuItems,
   promotions,
   siteContent,
+  orders,
+  orderItems,
   type AdminUser,
   type InsertAdminUser,
   type MenuCategory,
@@ -16,6 +18,8 @@ import {
   type InsertPromotion,
   type SiteContent,
   type InsertSiteContent,
+  type Order,
+  type OrderItem,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -44,6 +48,10 @@ export interface IStorage {
 
   getSiteContent(): Promise<SiteContent[]>;
   upsertSiteContent(data: InsertSiteContent): Promise<SiteContent>;
+
+  createOrder(total: string, deviceId: string, items: { menuItemId: number | null; nameEn: string; nameEs: string; price: string; quantity: number }[]): Promise<Order>;
+  getOrders(): Promise<(Order & { items: OrderItem[] })[]>;
+  updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -149,6 +157,58 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return result;
+  }
+
+  async createOrder(
+    total: string,
+    deviceId: string,
+    items: { menuItemId: number | null; nameEn: string; nameEs: string; price: string; quantity: number }[]
+  ): Promise<Order> {
+    return await db.transaction(async (tx) => {
+      const [order] = await tx
+        .insert(orders)
+        .values({ total, deviceId, status: "pending" })
+        .returning();
+
+      await tx.insert(orderItems).values(
+        items.map((item) => ({
+          orderId: order.id,
+          menuItemId: item.menuItemId,
+          nameEn: item.nameEn,
+          nameEs: item.nameEs,
+          price: item.price,
+          quantity: item.quantity,
+        }))
+      );
+
+      return order;
+    });
+  }
+
+  async getOrders(): Promise<(Order & { items: OrderItem[] })[]> {
+    const allOrders = await db.select().from(orders).orderBy(desc(orders.createdAt)).limit(100);
+    const allItems = await db.select().from(orderItems);
+
+    const itemsByOrderId = new Map<number, OrderItem[]>();
+    for (const item of allItems) {
+      const list = itemsByOrderId.get(item.orderId) || [];
+      list.push(item);
+      itemsByOrderId.set(item.orderId, list);
+    }
+
+    return allOrders.map((order) => ({
+      ...order,
+      items: itemsByOrderId.get(order.id) || [],
+    }));
+  }
+
+  async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({ status })
+      .where(eq(orders.id, id))
+      .returning();
+    return order;
   }
 }
 

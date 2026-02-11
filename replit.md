@@ -25,8 +25,15 @@ Phillyzon is a bilingual (EN/ES) restaurant website for a Philly cheesesteak and
 - `menuCategories` - Categories with EN/ES names
 - `menuItems` - Items with EN/ES name, description, price, featured, visible, imageUrl
 - `promotions` - Promotions with EN/ES title, description, active, dates, imageUrl
+- `orders` - Kiosk orders with orderNumber (serial), status (pending/preparing/completed), total, deviceId
+- `orderItems` - Order line items with name/price snapshots at order time, quantity, menuItemId reference
 
-## Routes
+## API Routes
+- `POST /api/orders` - Public: create order from kiosk (validates visible items, calculates total server-side, transactional)
+- `GET /api/admin/orders` - Admin: list recent orders with items
+- `PATCH /api/admin/orders/:id/status` - Admin: update order status (pending/preparing/completed)
+
+## Page Routes
 - `/` - Home page (hero, story, promotions preview, featured items)
 - `/menu` - Full menu grouped by category
 - `/promotions` - Active promotions with urgency badges
