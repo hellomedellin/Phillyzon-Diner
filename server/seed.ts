@@ -1,11 +1,7 @@
 import { storage } from "./storage";
 import { db } from "./db";
 import { adminUsers, menuCategories, menuItems, promotions } from "@shared/schema";
-import { createHash } from "crypto";
-
-function hashPassword(password: string): string {
-  return createHash("sha256").update(password).digest("hex");
-}
+import bcrypt from "bcrypt";
 
 export async function seedDatabase() {
   const existingCats = await storage.getCategories();
@@ -20,7 +16,7 @@ export async function seedDatabase() {
   if (!existingAdmin) {
     await storage.createAdmin({
       email: "admin@phillyzon.com",
-      password: hashPassword("phillyzon2024"),
+      password: await bcrypt.hash("phillyzon2024", 10),
     });
   }
 

@@ -8,6 +8,8 @@ interface LanguageContextType {
   bilingual: <T extends Record<string, any>>(item: T, field: string) => string;
 }
 
+export type { Language };
+
 const LanguageContext = createContext<LanguageContextType | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {

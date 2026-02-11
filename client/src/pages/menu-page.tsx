@@ -34,9 +34,9 @@ export default function MenuPage() {
           <div className="absolute inset-0 bg-background/95" />
         </div>
 
-        <div className="relative z-10 py-12 md:py-20 px-4">
+        <div className="relative z-10 py-16 md:py-24 px-4">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-14">
+            <div className="text-center mb-16">
               <h1
                 className="marquee-header text-3xl md:text-4xl marquee-glow"
                 data-testid="text-menu-title"
@@ -46,7 +46,7 @@ export default function MenuPage() {
             </div>
 
             {isLoading ? (
-              <div className="space-y-12">
+              <div className="space-y-14">
                 {[1, 2].map((i) => (
                   <div key={i}>
                     <Skeleton className="h-8 w-48 mb-6" />
@@ -67,7 +67,7 @@ export default function MenuPage() {
                 ))}
               </div>
             ) : categories && categories.length > 0 ? (
-              <div className="space-y-16">
+              <div className="space-y-20">
                 {categories
                   .sort((a, b) => a.sortOrder - b.sortOrder)
                   .map((cat) => {
@@ -75,7 +75,7 @@ export default function MenuPage() {
                     if (catItems.length === 0) return null;
                     return (
                       <div key={cat.id} data-testid={`section-category-${cat.id}`}>
-                        <div className="mb-8">
+                        <div className="mb-10">
                           <h2
                             className="marquee-header text-xl md:text-2xl"
                             data-testid={`text-category-name-${cat.id}`}
@@ -88,7 +88,7 @@ export default function MenuPage() {
                           {catItems.map((item, idx) => (
                             <div
                               key={item.id}
-                              className={`group py-5 ${idx < catItems.length - 1 ? "border-b border-border/20" : ""}`}
+                              className={`group py-6 ${idx < catItems.length - 1 ? "border-b border-border/20" : ""}`}
                               data-testid={`card-menuitem-${item.id}`}
                             >
                               <div className="flex items-start gap-4">
@@ -103,7 +103,7 @@ export default function MenuPage() {
                                   <div className="flex items-baseline justify-between gap-3 flex-wrap">
                                     <div className="flex items-center gap-2 flex-wrap">
                                       <h3
-                                        className="font-serif text-base md:text-lg font-semibold text-foreground uppercase tracking-wide"
+                                        className="font-serif text-base md:text-lg font-semibold text-foreground tracking-wide"
                                         data-testid={`text-menuitem-name-${item.id}`}
                                       >
                                         {bilingual(item, "name")}
@@ -123,7 +123,8 @@ export default function MenuPage() {
                                     </span>
                                   </div>
                                   <p
-                                    className="text-sm text-foreground/40 mt-1 italic uppercase tracking-wider"
+                                    className="text-sm text-foreground/40 mt-2 italic tracking-wider"
+                                    style={{ textTransform: "none" }}
                                     data-testid={`text-menuitem-desc-${item.id}`}
                                   >
                                     {bilingual(item, "description")}

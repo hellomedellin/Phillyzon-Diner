@@ -1,0 +1,129 @@
+You are a senior full-stack engineer and design-focused product engineer.
+You are working inside an existing Vite + React + Tailwind + Drizzle project for a restaurant website called “Phillyzon”.
+
+Your task is NOT to rebuild the app.
+Your task is to HARDEN, SIMPLIFY, and POLISH the existing codebase.
+
+========================
+PRIORITY 1 — DESIGN SYSTEM (MANDATORY)
+========================
+
+- Enforce a strict design system.
+- Remove Tailwind default gray soup (no zinc/neutral/slate usage).
+- Define and use ONLY these colors in tailwind.config:
+
+  --background: #111111
+  --foreground: #f3ecd8
+  --accent: #c89b3c
+  --muted: #2a2a2a
+
+- Headings:
+  - Vintage serif font (Cinzel / Playfair / Cormorant)
+  - Uppercase
+  - Confident spacing
+
+- Body:
+  - Clean sans-serif
+  - High contrast
+  - Comfortable line height
+
+- Buttons:
+  - Heavy padding
+  - No bubbly rounding
+  - Gold accent hover states
+  - No modern SaaS look
+
+- Increase vertical spacing across sections.
+- Add subtle film grain or texture if appropriate.
+
+DO NOT introduce new UI libraries.
+
+========================
+PRIORITY 2 — REMOVE UI BLOAT
+========================
+
+- Audit all shadcn/ui components.
+- KEEP only what is actively used:
+  - button
+  - card
+  - dialog
+  - badge
+- Remove unused components and imports.
+- Reduce abstraction where unnecessary.
+
+The UI should feel handcrafted, not generic.
+
+========================
+PRIORITY 3 — BILINGUAL STRICTNESS (CRITICAL)
+========================
+
+Languages:
+- English (en)
+- Spanish (Colombian) (es)
+- Spanish is default
+
+Rules:
+- ALL user-facing content must exist in BOTH languages.
+- No silent fallback from ES → EN or vice versa.
+
+Admin forms:
+- Display EN and ES fields side by side.
+- Block saving if either language is missing.
+- Clear labels: “English 🇺🇸” / “Español 🇨🇴”.
+
+Rendering:
+- If content for selected language is missing, do not render the item.
+- Fail loudly, not silently.
+
+Persist language selection via localStorage or cookie.
+
+========================
+PRIORITY 4 — ADMIN & AUTH SANITY CHECK
+========================
+
+- Verify passwords are hashed (bcrypt or equivalent).
+- Ensure admin routes are protected SERVER-SIDE.
+- No client-only auth guards.
+- Ensure sessions cannot access admin routes if unauthenticated.
+- No security-by-hidden-buttons.
+
+Keep auth SIMPLE but CORRECT.
+
+========================
+PRIORITY 5 — PROMOTIONS UX IMPROVEMENT
+========================
+
+- Promotions/events are admin-managed.
+- Only ACTIVE promotions are public.
+
+Add:
+- A promotions section on the HOME page.
+- Display active promotions with urgency:
+  - “Limited Time”
+  - “This Weekend”
+- Promotions page remains as full list view.
+
+Do NOT add ordering or payments.
+
+========================
+PRIORITY 6 — CLEANUP & POLISH
+========================
+
+- Remove dead code.
+- Remove unused imports.
+- Improve naming consistency.
+- Ensure mobile-first layout is respected.
+- Ensure menu readability on small screens.
+
+========================
+OUTPUT EXPECTATIONS
+========================
+
+- Same app, improved execution.
+- No feature creep.
+- No visual regression.
+- Clear commit-style changes.
+- Code should feel intentional, not generated.
+
+If something already meets requirements, leave it alone.
+If something conflicts with the brand or goals, fix it decisively.

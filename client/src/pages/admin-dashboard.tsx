@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Pencil, Trash2, LayoutDashboard, UtensilsCrossed, Tag, Megaphone, Upload, X, ImageIcon, Loader2 } from "lucide-react";
+import { LogOut, Plus, Pencil, Trash2, UtensilsCrossed, Tag, Megaphone, X, ImageIcon, Loader2 } from "lucide-react";
 import type { MenuCategory, MenuItem, Promotion } from "@shared/schema";
 import logoImage from "@assets/AISelect_20260209_183938_Instagram_1770702468454.jpg";
 
@@ -73,11 +73,11 @@ function CategoryForm({
     <form onSubmit={handleSubmit} className="space-y-4 p-4 border border-border rounded-md bg-card">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label>{t("admin.name")} ({t("admin.english")})</Label>
+          <Label>{t("admin.name")} — {t("admin.english.flag")}</Label>
           <Input value={nameEn} onChange={(e) => setNameEn(e.target.value)} required className="mt-1" data-testid="input-cat-name-en" />
         </div>
         <div>
-          <Label>{t("admin.name")} ({t("admin.spanish")})</Label>
+          <Label>{t("admin.name")} — {t("admin.spanish.flag")}</Label>
           <Input value={nameEs} onChange={(e) => setNameEs(e.target.value)} required className="mt-1" data-testid="input-cat-name-es" />
         </div>
       </div>
@@ -342,21 +342,21 @@ function MenuItemForm({
     <form onSubmit={handleSubmit} className="space-y-4 p-4 border border-border rounded-md bg-card">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label>{t("admin.name")} ({t("admin.english")})</Label>
+          <Label>{t("admin.name")} — {t("admin.english.flag")}</Label>
           <Input value={nameEn} onChange={(e) => setNameEn(e.target.value)} required className="mt-1" data-testid="input-item-name-en" />
         </div>
         <div>
-          <Label>{t("admin.name")} ({t("admin.spanish")})</Label>
+          <Label>{t("admin.name")} — {t("admin.spanish.flag")}</Label>
           <Input value={nameEs} onChange={(e) => setNameEs(e.target.value)} required className="mt-1" data-testid="input-item-name-es" />
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label>{t("admin.description")} ({t("admin.english")})</Label>
+          <Label>{t("admin.description")} — {t("admin.english.flag")}</Label>
           <Textarea value={descEn} onChange={(e) => setDescEn(e.target.value)} required className="mt-1" data-testid="input-item-desc-en" />
         </div>
         <div>
-          <Label>{t("admin.description")} ({t("admin.spanish")})</Label>
+          <Label>{t("admin.description")} — {t("admin.spanish.flag")}</Label>
           <Textarea value={descEs} onChange={(e) => setDescEs(e.target.value)} required className="mt-1" data-testid="input-item-desc-es" />
         </div>
       </div>
@@ -550,21 +550,21 @@ function PromotionForm({
     <form onSubmit={handleSubmit} className="space-y-4 p-4 border border-border rounded-md bg-card">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label>{t("admin.title")} ({t("admin.english")})</Label>
+          <Label>{t("admin.title")} — {t("admin.english.flag")}</Label>
           <Input value={titleEn} onChange={(e) => setTitleEn(e.target.value)} required className="mt-1" data-testid="input-promo-title-en" />
         </div>
         <div>
-          <Label>{t("admin.title")} ({t("admin.spanish")})</Label>
+          <Label>{t("admin.title")} — {t("admin.spanish.flag")}</Label>
           <Input value={titleEs} onChange={(e) => setTitleEs(e.target.value)} required className="mt-1" data-testid="input-promo-title-es" />
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label>{t("admin.description")} ({t("admin.english")})</Label>
+          <Label>{t("admin.description")} — {t("admin.english.flag")}</Label>
           <Textarea value={descEn} onChange={(e) => setDescEn(e.target.value)} required className="mt-1" data-testid="input-promo-desc-en" />
         </div>
         <div>
-          <Label>{t("admin.description")} ({t("admin.spanish")})</Label>
+          <Label>{t("admin.description")} — {t("admin.spanish.flag")}</Label>
           <Textarea value={descEs} onChange={(e) => setDescEs(e.target.value)} required className="mt-1" data-testid="input-promo-desc-es" />
         </div>
       </div>

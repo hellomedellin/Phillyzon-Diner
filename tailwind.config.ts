@@ -6,9 +6,9 @@ export default {
   theme: {
     extend: {
       borderRadius: {
-        lg: ".5625rem", /* 9px */
-        md: ".375rem", /* 6px */
-        sm: ".1875rem", /* 3px */
+        lg: ".375rem",
+        md: ".25rem",
+        sm: ".125rem",
       },
       colors: {
         // Flat / base colors (regular buttons)
@@ -87,6 +87,7 @@ export default {
         serif: ["var(--font-serif)"],
         display: ["var(--font-display)"],
         mono: ["var(--font-mono)"],
+        heading: ["'Cinzel'", "'Playfair Display'", "Georgia", "serif"],
       },
       keyframes: {
         "accordion-down": {

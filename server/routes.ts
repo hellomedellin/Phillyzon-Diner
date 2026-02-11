@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import session from "express-session";
-import { createHash } from "crypto";
+import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -48,9 +48,7 @@ declare module "express-session" {
   }
 }
 
-function hashPassword(password: string): string {
-  return createHash("sha256").update(password).digest("hex");
-}
+const BCRYPT_ROUNDS = 10;
 
 function requireAdmin(req: Request, res: Response, next: NextFunction) {
   if (!req.session.adminId) {
@@ -138,7 +136,12 @@ export async function registerRoutes(
     }
 
     const admin = await storage.getAdminByEmail(email);
-    if (!admin || admin.password !== hashPassword(password)) {
+    if (!admin) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const valid = await bcrypt.compare(password, admin.password);
+    if (!valid) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
@@ -174,14 +177,14 @@ export async function registerRoutes(
   });
 
   app.patch("/api/admin/categories/:id", requireAdmin, async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     const cat = await storage.updateCategory(id, req.body);
     if (!cat) return res.status(404).json({ message: "Not found" });
     res.json(cat);
   });
 
   app.delete("/api/admin/categories/:id", requireAdmin, async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     await storage.deleteCategory(id);
     res.json({ message: "Deleted" });
   });
@@ -194,14 +197,14 @@ export async function registerRoutes(
   });
 
   app.patch("/api/admin/menu-items/:id", requireAdmin, async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     const item = await storage.updateMenuItem(id, req.body);
     if (!item) return res.status(404).json({ message: "Not found" });
     res.json(item);
   });
 
   app.delete("/api/admin/menu-items/:id", requireAdmin, async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     await storage.deleteMenuItem(id);
     res.json({ message: "Deleted" });
   });
@@ -214,14 +217,14 @@ export async function registerRoutes(
   });
 
   app.patch("/api/admin/promotions/:id", requireAdmin, async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     const promo = await storage.updatePromotion(id, req.body);
     if (!promo) return res.status(404).json({ message: "Not found" });
     res.json(promo);
   });
 
   app.delete("/api/admin/promotions/:id", requireAdmin, async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     await storage.deletePromotion(id);
     res.json({ message: "Deleted" });
   });

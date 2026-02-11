@@ -10,9 +10,9 @@ export default function VisitPage() {
 
   return (
     <PublicLayout>
-      <div className="py-12 md:py-20 px-4 film-grain" data-testid="page-visit">
+      <div className="py-16 md:py-24 px-4 film-grain" data-testid="page-visit">
         <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="text-center mb-14">
+          <div className="text-center mb-16">
             <h1
               className="marquee-header text-3xl md:text-4xl marquee-glow"
               data-testid="text-visit-title"
