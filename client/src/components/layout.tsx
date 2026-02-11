@@ -101,10 +101,12 @@ export function Footer() {
     <footer className="border-t border-primary/10 py-10 mt-auto film-grain">
       <div className="relative z-10 max-w-6xl mx-auto px-4">
         <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center gap-3">
-            <img src={logoImage} alt="Phillyzon" className="h-8 w-8 rounded-md object-cover border border-primary/20" />
-            <span className="font-display text-xl gold-text tracking-widest">PHILLYZON</span>
-          </div>
+          <Link href="/admin/login" data-testid="link-footer-admin" className="opacity-100">
+            <div className="flex items-center gap-3">
+              <img src={logoImage} alt="Phillyzon" className="h-8 w-8 rounded-md object-cover border border-primary/20" />
+              <span className="font-display text-xl gold-text tracking-widest">PHILLYZON</span>
+            </div>
+          </Link>
 
           <div className="star-divider">
             <Star className="h-3 w-3 fill-current" />

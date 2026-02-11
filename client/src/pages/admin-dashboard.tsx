@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/lib/language-context";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Pencil, Trash2, UtensilsCrossed, Tag, Megaphone, X, ImageIcon, Loader2 } from "lucide-react";
+import { LogOut, Plus, Pencil, Trash2, UtensilsCrossed, Tag, Megaphone, X, ImageIcon, Loader2, ExternalLink } from "lucide-react";
 import type { MenuCategory, MenuItem, Promotion } from "@shared/schema";
 import logoImage from "@assets/AISelect_20260209_183938_Instagram_1770702468454.jpg";
 
@@ -40,10 +40,18 @@ function AdminHeader() {
             {t("admin.badge")}
           </span>
         </div>
-        <Button variant="ghost" onClick={handleLogout} data-testid="button-logout">
-          <LogOut className="h-4 w-4 mr-2" />
-          {t("admin.logout")}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Link href="/" data-testid="link-admin-home">
+            <Button variant="ghost" size="sm">
+              <ExternalLink className="h-4 w-4 mr-2" />
+              {t("admin.viewSite")}
+            </Button>
+          </Link>
+          <Button variant="ghost" onClick={handleLogout} data-testid="button-logout">
+            <LogOut className="h-4 w-4 mr-2" />
+            {t("admin.logout")}
+          </Button>
+        </div>
       </div>
     </header>
   );

@@ -53,6 +53,7 @@ const translations: TranslationMap = {
   "admin.items": { en: "Menu Items", es: "Elementos del Menu" },
   "admin.promotions": { en: "Promotions", es: "Promociones" },
   "admin.logout": { en: "Logout", es: "Cerrar Sesion" },
+  "admin.viewSite": { en: "View Site", es: "Ver Sitio" },
   "admin.add": { en: "Add New", es: "Agregar" },
   "admin.edit": { en: "Edit", es: "Editar" },
   "admin.delete": { en: "Delete", es: "Eliminar" },
