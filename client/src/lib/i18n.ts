@@ -103,6 +103,19 @@ const translations: TranslationMap = {
   "admin.orders.markPreparing": { en: "Mark Preparing", es: "Marcar Preparando" },
   "admin.orders.markCompleted": { en: "Mark Completed", es: "Marcar Completado" },
   "admin.orders.backToDashboard": { en: "Back to Dashboard", es: "Volver al Panel" },
+  "kiosk.tapToStart": { en: "Tap to Start Your Order", es: "Toca para Iniciar tu Pedido" },
+  "kiosk.selectCategory": { en: "Select a Category", es: "Selecciona una Categoria" },
+  "kiosk.add": { en: "Add", es: "Agregar" },
+  "kiosk.cart": { en: "Your Order", es: "Tu Pedido" },
+  "kiosk.cartEmpty": { en: "Your cart is empty", es: "Tu carrito esta vacio" },
+  "kiosk.total": { en: "Total", es: "Total" },
+  "kiosk.submitOrder": { en: "Submit Order", es: "Enviar Pedido" },
+  "kiosk.orderConfirmed": { en: "Order Confirmed", es: "Pedido Confirmado" },
+  "kiosk.orderNumber": { en: "ORDER", es: "PEDIDO" },
+  "kiosk.payAtCounter": { en: "Please pay at the counter", es: "Por favor paga en el mostrador" },
+  "kiosk.newOrder": { en: "New Order", es: "Nuevo Pedido" },
+  "kiosk.clearCart": { en: "Clear", es: "Limpiar" },
+  "kiosk.items": { en: "items", es: "articulos" },
 };
 
 export function t(key: string, lang: Language): string {

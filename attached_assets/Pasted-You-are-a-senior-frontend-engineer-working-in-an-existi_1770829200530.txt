@@ -1,0 +1,102 @@
+You are a senior frontend engineer working in an existing restaurant app that now supports orders and has an admin kitchen dashboard.
+
+Your task is to implement a production-ready kiosk mode.
+
+Do NOT modify backend order logic.
+Do NOT modify admin dashboard.
+Add kiosk cleanly.
+
+================================
+ROUTE
+================================
+
+Create:
+- /kiosk
+
+This route is PUBLIC.
+
+================================
+UI REQUIREMENTS
+================================
+
+This is a customer-facing kiosk screen.
+
+Rules:
+- No navbar
+- No footer
+- No admin links
+- No page clutter
+- Full-screen layout
+
+================================
+LAYOUT
+================================
+
+Top:
+- Logo
+- Short message: “Tap to Start”
+
+Main:
+- Category buttons (large, touch-friendly)
+- When category selected → show menu items grid
+
+Each item card:
+- Name (based on selected language)
+- Price
+- Large "Add" button
+
+Cart:
+- Always visible
+- Shows items with:
+  - name
+  - quantity
+  - price
+- Large + and − buttons
+- Clear total
+- Clear “Submit Order” button
+
+================================
+ORDER SUBMISSION
+================================
+
+On submit:
+- Call POST /api/orders
+- Pass deviceId (store "KIOSK-1" in localStorage)
+- Do NOT trust client totals
+- Show confirmation screen:
+
+  ORDER #XX
+  Please pay at the counter
+
+After confirmation:
+- Auto reset kiosk state after 25 seconds
+- Clear cart
+
+================================
+UX RULES
+================================
+
+- Large tap targets
+- High contrast
+- Minimal scrolling
+- Fast interactions
+- Prevent double submissions
+- Disable submit button while loading
+
+================================
+MOBILE/TABLET OPTIMIZATION
+================================
+
+- Optimized for 10–12 inch tablet
+- Big text
+- Comfortable spacing
+- No tiny buttons
+
+================================
+CODE QUALITY
+================================
+
+- Clean state management
+- No overengineering
+- No unnecessary packages
+- Keep it stable
