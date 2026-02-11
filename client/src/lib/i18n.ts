@@ -90,6 +90,19 @@ const translations: TranslationMap = {
   "admin.error.credentials": { en: "Invalid credentials", es: "Credenciales invalidas" },
   "admin.hidden": { en: "Hidden", es: "Oculto" },
   "admin.inactive": { en: "Inactive", es: "Inactivo" },
+  "admin.orders": { en: "Orders", es: "Pedidos" },
+  "admin.orders.title": { en: "Kitchen Orders", es: "Pedidos de Cocina" },
+  "admin.orders.empty": { en: "No orders yet", es: "Sin pedidos aun" },
+  "admin.orders.number": { en: "Order", es: "Pedido" },
+  "admin.orders.device": { en: "Device", es: "Dispositivo" },
+  "admin.orders.total": { en: "Total", es: "Total" },
+  "admin.orders.items": { en: "Items", es: "Articulos" },
+  "admin.orders.status.pending": { en: "Pending", es: "Pendiente" },
+  "admin.orders.status.preparing": { en: "Preparing", es: "Preparando" },
+  "admin.orders.status.completed": { en: "Completed", es: "Completado" },
+  "admin.orders.markPreparing": { en: "Mark Preparing", es: "Marcar Preparando" },
+  "admin.orders.markCompleted": { en: "Mark Completed", es: "Marcar Completado" },
+  "admin.orders.backToDashboard": { en: "Back to Dashboard", es: "Volver al Panel" },
 };
 
 export function t(key: string, lang: Language): string {

@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Pencil, Trash2, UtensilsCrossed, Tag, Megaphone, X, ImageIcon, Loader2, ExternalLink } from "lucide-react";
+import { LogOut, Plus, Pencil, Trash2, UtensilsCrossed, Tag, Megaphone, X, ImageIcon, Loader2, ExternalLink, ClipboardList } from "lucide-react";
 import type { MenuCategory, MenuItem, Promotion } from "@shared/schema";
 import logoImage from "@assets/AISelect_20260209_183938_Instagram_1770702468454.jpg";
 
@@ -41,6 +41,12 @@ function AdminHeader() {
           </span>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/admin/orders" data-testid="link-admin-orders">
+            <Button variant="ghost" size="sm">
+              <ClipboardList className="h-4 w-4 mr-2" />
+              {t("admin.orders")}
+            </Button>
+          </Link>
           <Link href="/" data-testid="link-admin-home">
             <Button variant="ghost" size="sm">
               <ExternalLink className="h-4 w-4 mr-2" />
