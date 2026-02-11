@@ -205,7 +205,6 @@ export default function Kiosk() {
             variant="outline"
             size="lg"
             onClick={resetKiosk}
-            className="text-lg px-10"
             data-testid="button-kiosk-new-order"
           >
             {t("kiosk.newOrder")}
@@ -225,7 +224,7 @@ export default function Kiosk() {
 
   return (
     <div className="fixed inset-0 bg-background flex flex-col select-none" data-testid="kiosk-ordering">
-      <header className="flex items-center justify-between px-4 py-3 border-b border-border/30 flex-shrink-0">
+      <header className="flex items-center justify-between gap-4 px-4 py-3 border-b border-border/30 flex-shrink-0">
         <div className="flex items-center gap-3">
           <img src={logoImage} alt="Phillyzon" className="h-10 w-10 rounded-md object-cover" />
           <span className="font-serif text-xl gold-text tracking-wider">PHILLYZON</span>
@@ -233,9 +232,8 @@ export default function Kiosk() {
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
-            size="sm"
             onClick={() => setLang(lang === "en" ? "es" : "en")}
-            className="text-sm text-foreground/60"
+            className="text-foreground/60"
             data-testid="button-kiosk-toggle-lang"
           >
             {lang === "en" ? "ES" : "EN"}
@@ -263,7 +261,7 @@ export default function Kiosk() {
                     variant={isSelected ? "default" : "outline"}
                     size="lg"
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`text-base whitespace-nowrap flex-shrink-0 ${isSelected ? "" : ""}`}
+                    className="text-base whitespace-nowrap flex-shrink-0"
                     data-testid={`button-kiosk-category-${cat.id}`}
                   >
                     {bilingual(cat, "name")}
@@ -338,7 +336,7 @@ export default function Kiosk() {
         </div>
 
         <aside className="w-80 lg:w-96 border-l border-border/30 flex flex-col flex-shrink-0 bg-muted/30">
-          <div className="px-4 py-3 border-b border-border/20 flex items-center justify-between gap-2">
+          <div className="px-4 py-3 border-b border-border/20 flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <ShoppingCart className="h-5 w-5 text-primary" />
               <h2 className="font-serif text-lg gold-text tracking-wider">{t("kiosk.cart")}</h2>
@@ -351,9 +349,8 @@ export default function Kiosk() {
             {cart.length > 0 && (
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={() => setCart([])}
-                className="text-sm text-foreground/50"
+                className="text-foreground/50"
                 data-testid="button-kiosk-clear-cart"
               >
                 <Trash2 className="h-4 w-4 mr-1" />
@@ -418,7 +415,7 @@ export default function Kiosk() {
           </div>
 
           <div className="border-t border-border/30 px-4 py-4 flex-shrink-0">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between gap-4 mb-4">
               <span className="font-serif text-lg text-foreground tracking-wider">{t("kiosk.total")}</span>
               <span className="font-display text-3xl gold-text tracking-widest" data-testid="text-kiosk-total">
                 ${formatPrice(String(cartTotal))}
@@ -426,7 +423,7 @@ export default function Kiosk() {
             </div>
             <Button
               size="lg"
-              className="w-full text-lg py-6"
+              className="w-full text-lg"
               disabled={cart.length === 0 || orderMutation.isPending}
               onClick={() => orderMutation.mutate()}
               data-testid="button-kiosk-submit"

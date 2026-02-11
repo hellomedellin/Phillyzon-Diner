@@ -38,8 +38,10 @@ Phillyzon is a bilingual (EN/ES) restaurant website for a Philly cheesesteak and
 - `/menu` - Full menu grouped by category
 - `/promotions` - Active promotions with urgency badges
 - `/visit` - Location, hours, map, WhatsApp
+- `/kiosk` - Customer self-service ordering kiosk (full-screen, no nav/footer)
 - `/admin/login` - Admin login
 - `/admin/dashboard` - Admin CRUD panel
+- `/admin/orders` - Kitchen order management dashboard
 
 ## Admin Credentials (Seed)
 - Email: admin@phillyzon.com
