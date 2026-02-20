@@ -29,7 +29,7 @@ function HeroSection() {
   const { t } = useLanguage();
   return (
     <section className="relative overflow-visible" data-testid="section-hero">
-      <div className="relative min-h-[75vh] md:min-h-[85vh] flex items-center justify-center">
+      <div className="relative min-h-[65vh] md:min-h-[75vh] flex items-center justify-center">
         <div className="absolute inset-0 overflow-hidden">
           <img
             src={heroImage1}
@@ -40,8 +40,8 @@ function HeroSection() {
           <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80" />
         </div>
 
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto py-16">
-          <div className="mb-8 flex justify-center">
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto py-12">
+          <div className="mb-4 flex justify-center">
             <img
               src={logoImage}
               alt="Phillyzon"
@@ -84,7 +84,7 @@ function HeroSection() {
 function StorySection() {
   const { t } = useLanguage();
   return (
-    <section className="py-24 md:py-32 px-4 film-grain" data-testid="section-story">
+    <section className="py-16 md:py-20 px-4 film-grain" data-testid="section-story">
       <div className="max-w-4xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="relative">
@@ -134,7 +134,7 @@ function PromotionsPreview() {
   const displayPromos = promos.slice(0, 3);
 
   return (
-    <section className="py-24 md:py-32 px-4 relative" data-testid="section-home-promos">
+    <section className="py-16 md:py-20 px-4 relative" data-testid="section-home-promos">
       <div className="absolute inset-0 overflow-hidden">
         <img
           src={heroImage2}
@@ -145,7 +145,7 @@ function PromotionsPreview() {
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto">
-        <div className="text-center mb-14">
+        <div className="text-center mb-10">
           <h2
             className="marquee-header text-2xl md:text-3xl marquee-glow"
             data-testid="text-home-promos-title"
@@ -214,7 +214,7 @@ function PromotionsPreview() {
 function CinemaShowcase() {
   const { t } = useLanguage();
   return (
-    <section className="py-20 md:py-28 relative" data-testid="section-cinema">
+    <section className="py-12 md:py-16 relative" data-testid="section-cinema">
       <div className="absolute inset-0 overflow-hidden">
         <img
           src={heroImage2}
@@ -252,9 +252,9 @@ function FeaturedSection() {
   });
 
   return (
-    <section className="py-24 md:py-32 px-4 relative film-grain" data-testid="section-featured">
+    <section className="py-16 md:py-20 px-4 relative film-grain" data-testid="section-featured">
       <div className="relative z-10 max-w-6xl mx-auto">
-        <div className="text-center mb-14">
+        <div className="text-center mb-10">
           <h2
             className="marquee-header text-2xl md:text-3xl marquee-glow"
             data-testid="text-featured-title"

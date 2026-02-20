@@ -34,9 +34,9 @@ export default function MenuPage() {
           <div className="absolute inset-0 bg-background/95" />
         </div>
 
-        <div className="relative z-10 py-16 md:py-24 px-4">
+        <div className="relative z-10 py-12 md:py-16 px-4">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-16">
+            <div className="text-center mb-10">
               <h1
                 className="marquee-header text-3xl md:text-4xl marquee-glow"
                 data-testid="text-menu-title"
@@ -67,7 +67,7 @@ export default function MenuPage() {
                 ))}
               </div>
             ) : categories && categories.length > 0 ? (
-              <div className="space-y-20">
+              <div className="space-y-12">
                 {categories
                   .sort((a, b) => a.sortOrder - b.sortOrder)
                   .map((cat) => {
@@ -75,7 +75,7 @@ export default function MenuPage() {
                     if (catItems.length === 0) return null;
                     return (
                       <div key={cat.id} data-testid={`section-category-${cat.id}`}>
-                        <div className="mb-10">
+                        <div className="mb-6">
                           <h2
                             className="marquee-header text-xl md:text-2xl"
                             data-testid={`text-category-name-${cat.id}`}
@@ -88,7 +88,7 @@ export default function MenuPage() {
                           {catItems.map((item, idx) => (
                             <div
                               key={item.id}
-                              className={`group py-6 ${idx < catItems.length - 1 ? "border-b border-border/20" : ""}`}
+                              className={`group py-4 ${idx < catItems.length - 1 ? "border-b border-border/20" : ""}`}
                               data-testid={`card-menuitem-${item.id}`}
                             >
                               <div className="flex items-start gap-4">

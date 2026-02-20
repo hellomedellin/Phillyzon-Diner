@@ -27,9 +27,9 @@ export default function PromotionsPage() {
 
   return (
     <PublicLayout>
-      <div className="py-16 md:py-24 px-4 film-grain" data-testid="page-promotions">
+      <div className="py-12 md:py-16 px-4 film-grain" data-testid="page-promotions">
         <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <h1
               className="marquee-header text-3xl md:text-4xl marquee-glow"
               data-testid="text-promo-title"

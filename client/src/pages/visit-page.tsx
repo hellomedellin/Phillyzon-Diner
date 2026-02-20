@@ -10,9 +10,9 @@ export default function VisitPage() {
 
   return (
     <PublicLayout>
-      <div className="py-16 md:py-24 px-4 film-grain" data-testid="page-visit">
+      <div className="py-12 md:py-16 px-4 film-grain" data-testid="page-visit">
         <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <h1
               className="marquee-header text-3xl md:text-4xl marquee-glow"
               data-testid="text-visit-title"
@@ -21,7 +21,7 @@ export default function VisitPage() {
             </h1>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <Card className="p-6" data-testid="card-address">
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -57,7 +57,7 @@ export default function VisitPage() {
             </Card>
           </div>
 
-          <Card className="p-6 mb-10" data-testid="card-whatsapp">
+          <Card className="p-6 mb-8" data-testid="card-whatsapp">
             <div className="flex flex-col sm:flex-row items-center gap-5">
               <div className="w-14 h-14 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <SiWhatsapp className="h-7 w-7 text-primary" />
