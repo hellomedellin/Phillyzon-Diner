@@ -112,9 +112,15 @@ export function Footer() {
             <Star className="h-3 w-3 fill-current" />
           </div>
 
-          <p className="text-xs text-foreground/30 tracking-wider uppercase" data-testid="text-footer-rights">
-            &copy; {new Date().getFullYear()} Phillyzon. {t("footer.rights")}
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-xs text-foreground/30 tracking-wider uppercase" data-testid="text-footer-rights">
+              &copy; {new Date().getFullYear()} Phillyzon. {t("footer.rights")}
+            </p>
+            <span className="text-foreground/20">|</span>
+            <Link href="/admin/login" className="text-xs text-foreground/30 hover:text-primary tracking-wider uppercase transition-colors" data-testid="link-footer-admin-login">
+              Admin
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
