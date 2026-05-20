@@ -153,7 +153,7 @@ export async function seedDatabase() {
       titleEs: "Especial de Inauguracion",
       descriptionEn: "Get 20% off your entire order during our grand opening week! Use code PHILLY20 when ordering.",
       descriptionEs: "Obten 20% de descuento en todo tu pedido durante nuestra semana de inauguracion! Usa el codigo PHILLY20 al pedir.",
-      active: true,
+      active: false,
       startDate: "2026-02-01",
       endDate: "2026-03-31",
     },

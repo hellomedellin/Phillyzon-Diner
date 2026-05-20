@@ -1,0 +1,16 @@
+{
+  "name": "Phillyzon",
+  "short_name": "Phillyzon",
+  "description": "Authentic Philly cheesesteaks and classic American burgers, grilled in Medellin.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#c89b3c",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

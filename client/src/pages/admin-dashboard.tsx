@@ -489,7 +489,7 @@ function MenuItemsTab() {
                 <Card className="p-4" data-testid={`card-admin-item-${item.id}`}>
                   <div className="flex items-center justify-between gap-4 flex-wrap">
                     {item.imageUrl && (
-                      <img src={item.imageUrl} alt="" className="w-12 h-12 rounded-md object-cover border border-border flex-shrink-0" />
+                      <img src={item.imageUrl} alt={item.nameEn} className="w-12 h-12 rounded-md object-cover border border-border flex-shrink-0" />
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">

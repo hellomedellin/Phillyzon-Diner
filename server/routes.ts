@@ -1,13 +1,14 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import session from "express-session";
+import connectPg from "connect-pg-simple";
+import rateLimit from "express-rate-limit";
 import bcrypt from "bcrypt";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
 import express from "express";
 import { storage } from "./storage";
 import { seedDatabase } from "./seed";
+import { uploadToS3, deleteFromS3 } from "./s3";
 import {
   insertMenuCategorySchema,
   insertMenuItemSchema,
@@ -16,22 +17,8 @@ import {
   orderStatusEnum,
 } from "@shared/schema";
 
-const uploadsDir = path.resolve(process.cwd(), "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-const multerStorage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadsDir),
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, uniqueSuffix + ext);
-  },
-});
-
 const upload = multer({
-  storage: multerStorage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -41,6 +28,14 @@ const upload = multer({
       cb(new Error("Only image files are allowed"));
     }
   },
+});
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { message: "Too many login attempts. Try again in 15 minutes." },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 declare module "express-session" {
@@ -63,26 +58,31 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  const PgStore = connectPg(session);
   app.use(
     session({
-      secret: process.env.SESSION_SECRET || "phillyzon-secret-key-change-me",
+      store:
+        process.env.NODE_ENV === "production"
+          ? new PgStore({ conString: process.env.DATABASE_URL })
+          : undefined,
+      secret: process.env.SESSION_SECRET!,
       resave: false,
       saveUninitialized: false,
       cookie: {
         maxAge: 24 * 60 * 60 * 1000,
         httpOnly: true,
-        secure: false,
+        secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       },
     })
   );
 
+  app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
+
   await seedDatabase();
 
-  app.use("/uploads", express.static(uploadsDir));
-
   app.post("/api/admin/upload", requireAdmin, (req: Request, res: Response) => {
-    upload.single("image")(req, res, (err: any) => {
+    upload.single("image")(req, res, async (err: any) => {
       if (err) {
         if (err.code === "LIMIT_FILE_SIZE") {
           return res.status(400).json({ message: "File too large. Maximum size is 5MB." });
@@ -95,18 +95,19 @@ export async function registerRoutes(
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
       }
-      const imageUrl = `/uploads/${req.file.filename}`;
-      res.json({ imageUrl });
+      try {
+        const imageUrl = await uploadToS3(req.file.buffer, req.file.mimetype, req.file.originalname);
+        res.json({ imageUrl });
+      } catch {
+        res.status(500).json({ message: "Upload to storage failed" });
+      }
     });
   });
 
-  app.delete("/api/admin/upload", requireAdmin, (req: Request, res: Response) => {
+  app.delete("/api/admin/upload", requireAdmin, async (req: Request, res: Response) => {
     const { imageUrl } = req.body;
-    if (imageUrl && typeof imageUrl === "string" && imageUrl.startsWith("/uploads/")) {
-      const filePath = path.join(uploadsDir, path.basename(imageUrl));
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+    if (imageUrl && typeof imageUrl === "string") {
+      await deleteFromS3(imageUrl).catch(() => {});
     }
     res.json({ message: "Deleted" });
   });
@@ -131,7 +132,7 @@ export async function registerRoutes(
     res.json(promos);
   });
 
-  app.post("/api/admin/login", async (req, res) => {
+  app.post("/api/admin/login", loginLimiter, async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password required" });
