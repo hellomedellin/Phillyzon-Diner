@@ -56,7 +56,7 @@ export function Header() {
         <nav className="hidden md:flex items-center gap-8" data-testid="nav-desktop">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} data-testid={`link-nav-${item.href.replace("/", "") || "home"}`}>
-              <span className={`text-sm font-medium tracking-wider uppercase transition-colors ${location === item.href ? "gold-text" : "text-foreground/40"}`}>
+              <span className={`text-sm font-medium tracking-wider uppercase transition-colors relative pb-0.5 after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-primary after:transition-transform after:duration-200 hover:after:scale-x-100 ${location === item.href ? "gold-text after:scale-x-100" : "text-foreground/60 hover:text-foreground/90"}`}>
                 {item.label}
               </span>
             </Link>
