@@ -304,9 +304,13 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/admin/orders", requireAdmin, async (_req, res) => {
-    const orderList = await storage.getOrders();
-    res.json(orderList);
+  app.get("/api/admin/orders/current", requireAdmin, async (_req, res) => {
+    res.json(await storage.getCurrentOrders());
+  });
+
+  app.get("/api/admin/orders/completed", requireAdmin, async (req, res) => {
+    const date = (req.query.date as string) || new Date().toISOString().split("T")[0];
+    res.json(await storage.getCompletedOrders(date));
   });
 
   app.patch("/api/admin/orders/:id/status", requireAdmin, async (req, res) => {

@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, inArray, sql } from "drizzle-orm";
 import { db } from "./db";
 import {
   adminUsers,
@@ -52,7 +52,8 @@ export interface IStorage {
   upsertSiteContent(data: InsertSiteContent): Promise<SiteContent>;
 
   createOrder(total: string, deviceId: string, items: { menuItemId: number | null; nameEn: string; nameEs: string; price: string; quantity: number }[]): Promise<Order>;
-  getOrders(): Promise<(Order & { items: OrderItem[] })[]>;
+  getCurrentOrders(): Promise<(Order & { items: OrderItem[] })[]>;
+  getCompletedOrders(date: string): Promise<(Order & { items: OrderItem[] })[]>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
 }
 
@@ -197,21 +198,34 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
-  async getOrders(): Promise<(Order & { items: OrderItem[] })[]> {
-    const allOrders = await db.select().from(orders).orderBy(desc(orders.createdAt)).limit(100);
-    const allItems = await db.select().from(orderItems);
-
-    const itemsByOrderId = new Map<number, OrderItem[]>();
+  private async withItems(orderList: Order[]): Promise<(Order & { items: OrderItem[] })[]> {
+    if (orderList.length === 0) return [];
+    const ids = orderList.map((o) => o.id);
+    const allItems = await db.select().from(orderItems).where(inArray(orderItems.orderId, ids));
+    const map = new Map<number, OrderItem[]>();
     for (const item of allItems) {
-      const list = itemsByOrderId.get(item.orderId) || [];
+      const list = map.get(item.orderId) || [];
       list.push(item);
-      itemsByOrderId.set(item.orderId, list);
+      map.set(item.orderId, list);
     }
+    return orderList.map((o) => ({ ...o, items: map.get(o.id) || [] }));
+  }
 
-    return allOrders.map((order) => ({
-      ...order,
-      items: itemsByOrderId.get(order.id) || [],
-    }));
+  async getCurrentOrders(): Promise<(Order & { items: OrderItem[] })[]> {
+    const active = await db.select().from(orders)
+      .where(inArray(orders.status, ["pending", "preparing"]))
+      .orderBy(desc(orders.createdAt));
+    return this.withItems(active);
+  }
+
+  async getCompletedOrders(date: string): Promise<(Order & { items: OrderItem[] })[]> {
+    const completed = await db.select().from(orders)
+      .where(and(
+        eq(orders.status, "completed"),
+        sql`${orders.createdAt}::date = ${date}::date`
+      ))
+      .orderBy(desc(orders.createdAt));
+    return this.withItems(completed);
   }
 
   async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
