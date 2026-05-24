@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/lib/language-context";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Pencil, Trash2, UtensilsCrossed, Tag, Megaphone, X, ImageIcon, Loader2, ExternalLink, ClipboardList, Users } from "lucide-react";
+import { LogOut, Plus, Pencil, Trash2, UtensilsCrossed, Tag, Megaphone, X, ImageIcon, Loader2, ExternalLink, ClipboardList, Users, Settings } from "lucide-react";
 import type { MenuCategory, MenuItem, Promotion } from "@shared/schema";
 import logoImage from "@assets/AISelect_20260209_183938_Instagram_1770702468454.jpg";
 
@@ -922,6 +922,133 @@ function UsersTab({ currentId }: { currentId?: number }) {
   );
 }
 
+const CONTACT_DEFAULTS = {
+  address: "Calle 10 #43A-30, El Poblado, Medellin, Colombia",
+  phone: "573016926846",
+  hoursWeekdayEn: "Monday - Thursday: 11:00 AM - 10:00 PM",
+  hoursWeekdayEs: "Lunes - Jueves: 11:00 AM - 10:00 PM",
+  hoursWeekendEn: "Friday - Saturday: 11:00 AM - 11:00 PM",
+  hoursWeekendEs: "Viernes - Sabado: 11:00 AM - 11:00 PM",
+  hoursSundayEn: "Sunday: 12:00 PM - 9:00 PM",
+  hoursSundayEs: "Domingo: 12:00 PM - 9:00 PM",
+};
+
+function ContactSettingsTab() {
+  const { toast } = useToast();
+
+  const { data: siteItems = [], isSuccess } = useQuery<{ key: string; valueEn: string; valueEs: string }[]>({
+    queryKey: ["/api/site-content"],
+  });
+
+  const [address, setAddress] = useState(CONTACT_DEFAULTS.address);
+  const [phone, setPhone] = useState(CONTACT_DEFAULTS.phone);
+  const [hoursWeekdayEn, setHoursWeekdayEn] = useState(CONTACT_DEFAULTS.hoursWeekdayEn);
+  const [hoursWeekdayEs, setHoursWeekdayEs] = useState(CONTACT_DEFAULTS.hoursWeekdayEs);
+  const [hoursWeekendEn, setHoursWeekendEn] = useState(CONTACT_DEFAULTS.hoursWeekendEn);
+  const [hoursWeekendEs, setHoursWeekendEs] = useState(CONTACT_DEFAULTS.hoursWeekendEs);
+  const [hoursSundayEn, setHoursSundayEn] = useState(CONTACT_DEFAULTS.hoursSundayEn);
+  const [hoursSundayEs, setHoursSundayEs] = useState(CONTACT_DEFAULTS.hoursSundayEs);
+
+  const initialized = useRef(false);
+
+  useEffect(() => {
+    if (!isSuccess || initialized.current) return;
+    initialized.current = true;
+    const get = (key: string, lang: "en" | "es") => {
+      const item = siteItems.find((i) => i.key === key);
+      return item ? (lang === "en" ? item.valueEn : item.valueEs) : undefined;
+    };
+    setAddress(get("contact.address", "en") ?? CONTACT_DEFAULTS.address);
+    setPhone(get("contact.phone", "en") ?? CONTACT_DEFAULTS.phone);
+    setHoursWeekdayEn(get("contact.hours.weekday", "en") ?? CONTACT_DEFAULTS.hoursWeekdayEn);
+    setHoursWeekdayEs(get("contact.hours.weekday", "es") ?? CONTACT_DEFAULTS.hoursWeekdayEs);
+    setHoursWeekendEn(get("contact.hours.weekend", "en") ?? CONTACT_DEFAULTS.hoursWeekendEn);
+    setHoursWeekendEs(get("contact.hours.weekend", "es") ?? CONTACT_DEFAULTS.hoursWeekendEs);
+    setHoursSundayEn(get("contact.hours.sunday", "en") ?? CONTACT_DEFAULTS.hoursSundayEn);
+    setHoursSundayEs(get("contact.hours.sunday", "es") ?? CONTACT_DEFAULTS.hoursSundayEs);
+  }, [isSuccess, siteItems]);
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      apiRequest("PUT", "/api/admin/site-content", [
+        { key: "contact.address", valueEn: address, valueEs: address },
+        { key: "contact.phone", valueEn: phone, valueEs: phone },
+        { key: "contact.hours.weekday", valueEn: hoursWeekdayEn, valueEs: hoursWeekdayEs },
+        { key: "contact.hours.weekend", valueEn: hoursWeekendEn, valueEs: hoursWeekendEs },
+        { key: "contact.hours.sunday", valueEn: hoursSundayEn, valueEs: hoursSundayEs },
+      ]),
+    onSuccess: () => {
+      toast({ title: "Contact info saved" });
+      queryClient.invalidateQueries({ queryKey: ["/api/site-content"] });
+    },
+    onError: (err: any) => toast({ title: err.message || "Error", variant: "destructive" }),
+  });
+
+  return (
+    <div className="max-w-xl">
+      <Card className="p-6">
+        <h2 className="font-serif text-lg font-semibold gold-text mb-1">Contact & Hours</h2>
+        <div className="h-px w-8 bg-primary mb-6" />
+
+        <form onSubmit={(e) => { e.preventDefault(); mutation.mutate(); }} className="space-y-5">
+          <div>
+            <Label>Address</Label>
+            <Input value={address} onChange={(e) => setAddress(e.target.value)} className="mt-1" />
+          </div>
+
+          <div>
+            <Label>WhatsApp Number</Label>
+            <p className="text-xs text-muted-foreground mt-0.5 mb-1">Digits only, include country code (e.g. 573016926846)</p>
+            <Input value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1" placeholder="573016926846" />
+          </div>
+
+          <div className="border-t border-border/30 pt-5 space-y-4">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Hours</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs">Weekday — EN</Label>
+                <Input value={hoursWeekdayEn} onChange={(e) => setHoursWeekdayEn(e.target.value)} className="mt-1 h-8 text-sm" />
+              </div>
+              <div>
+                <Label className="text-xs">Weekday — ES</Label>
+                <Input value={hoursWeekdayEs} onChange={(e) => setHoursWeekdayEs(e.target.value)} className="mt-1 h-8 text-sm" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs">Weekend — EN</Label>
+                <Input value={hoursWeekendEn} onChange={(e) => setHoursWeekendEn(e.target.value)} className="mt-1 h-8 text-sm" />
+              </div>
+              <div>
+                <Label className="text-xs">Weekend — ES</Label>
+                <Input value={hoursWeekendEs} onChange={(e) => setHoursWeekendEs(e.target.value)} className="mt-1 h-8 text-sm" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs">Sunday — EN</Label>
+                <Input value={hoursSundayEn} onChange={(e) => setHoursSundayEn(e.target.value)} className="mt-1 h-8 text-sm" />
+              </div>
+              <div>
+                <Label className="text-xs">Sunday — ES</Label>
+                <Input value={hoursSundayEs} onChange={(e) => setHoursSundayEs(e.target.value)} className="mt-1 h-8 text-sm" />
+              </div>
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full" disabled={mutation.isPending}>
+            {mutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            Save Contact Info
+          </Button>
+        </form>
+      </Card>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const { t } = useLanguage();
   const [, setLocation] = useLocation();
@@ -958,7 +1085,7 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs defaultValue="categories" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 max-w-lg" data-testid="tabs-admin">
+          <TabsList className="grid w-full grid-cols-5 max-w-xl" data-testid="tabs-admin">
             <TabsTrigger value="categories" className="gap-2" data-testid="tab-categories">
               <Tag className="h-4 w-4" />
               <span className="hidden sm:inline">{t("admin.categories")}</span>
@@ -975,6 +1102,10 @@ export default function AdminDashboard() {
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Users</span>
             </TabsTrigger>
+            <TabsTrigger value="settings" className="gap-2" data-testid="tab-settings">
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">Settings</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="categories">
@@ -988,6 +1119,9 @@ export default function AdminDashboard() {
           </TabsContent>
           <TabsContent value="users">
             <UsersTab currentId={session.id} />
+          </TabsContent>
+          <TabsContent value="settings">
+            <ContactSettingsTab />
           </TabsContent>
         </Tabs>
       </div>

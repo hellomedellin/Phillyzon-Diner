@@ -140,6 +140,22 @@ export async function registerRoutes(
     res.json(promos);
   });
 
+  app.get("/api/site-content", async (_req, res) => {
+    const items = await storage.getSiteContent();
+    res.json(items);
+  });
+
+  app.put("/api/admin/site-content", requireAdmin, async (req, res) => {
+    const items = req.body;
+    if (!Array.isArray(items)) return res.status(400).json({ message: "Expected array" });
+    const results = await Promise.all(
+      items.map((item: any) =>
+        storage.upsertSiteContent({ key: item.key, valueEn: item.valueEn, valueEs: item.valueEs })
+      )
+    );
+    res.json(results);
+  });
+
   app.post("/api/admin/login", loginLimiter, async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {

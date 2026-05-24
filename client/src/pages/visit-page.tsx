@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/lib/language-context";
 import { PublicLayout } from "@/components/layout";
 import { Card } from "@/components/ui/card";
@@ -5,8 +6,23 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Clock, MessageCircle, Star } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 
+type SiteContentItem = { key: string; valueEn: string; valueEs: string };
+
 export default function VisitPage() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const { data: siteItems = [] } = useQuery<SiteContentItem[]>({ queryKey: ["/api/site-content"] });
+
+  const sc = (key: string) => {
+    const item = siteItems.find((i) => i.key === key);
+    if (!item) return undefined;
+    return lang === "en" ? item.valueEn : item.valueEs;
+  };
+
+  const address = sc("contact.address") || t("visit.address");
+  const phone = sc("contact.phone") || "573016926846";
+  const hoursWeekday = sc("contact.hours.weekday") || t("visit.hours.weekday");
+  const hoursWeekend = sc("contact.hours.weekend") || t("visit.hours.weekend");
+  const hoursSunday = sc("contact.hours.sunday") || t("visit.hours.sunday");
 
   return (
     <PublicLayout>
@@ -32,7 +48,7 @@ export default function VisitPage() {
                     {t("visit.address.label")}
                   </h3>
                   <p className="text-foreground/50 text-sm" data-testid="text-address">
-                    {t("visit.address")}
+                    {address}
                   </p>
                 </div>
               </div>
@@ -48,9 +64,9 @@ export default function VisitPage() {
                     {t("visit.hours.label")}
                   </h3>
                   <div className="space-y-1 text-sm text-foreground/50">
-                    <p data-testid="text-hours-weekday">{t("visit.hours.weekday")}</p>
-                    <p data-testid="text-hours-weekend">{t("visit.hours.weekend")}</p>
-                    <p data-testid="text-hours-sunday">{t("visit.hours.sunday")}</p>
+                    <p data-testid="text-hours-weekday">{hoursWeekday}</p>
+                    <p data-testid="text-hours-weekend">{hoursWeekend}</p>
+                    <p data-testid="text-hours-sunday">{hoursSunday}</p>
                   </div>
                 </div>
               </div>
@@ -71,7 +87,7 @@ export default function VisitPage() {
                 </p>
               </div>
               <a
-                href="https://wa.me/573016926846"
+                href={`https://wa.me/${phone}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
