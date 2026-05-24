@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Pencil, Trash2, UtensilsCrossed, Tag, Megaphone, X, ImageIcon, Loader2, ExternalLink, ClipboardList } from "lucide-react";
+import { LogOut, Plus, Pencil, Trash2, UtensilsCrossed, Tag, Megaphone, X, ImageIcon, Loader2, ExternalLink, ClipboardList, Settings } from "lucide-react";
 import type { MenuCategory, MenuItem, Promotion } from "@shared/schema";
 import logoImage from "@assets/AISelect_20260209_183938_Instagram_1770702468454.jpg";
 
@@ -713,6 +713,121 @@ function PromotionsTab() {
   );
 }
 
+function SettingsTab({ currentEmail }: { currentEmail: string }) {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const mutation = useMutation({
+    mutationFn: async (payload: { currentPassword: string; newEmail?: string; newPassword?: string }) => {
+      await apiRequest("PATCH", "/api/admin/profile", payload);
+    },
+    onSuccess: () => {
+      toast({ title: t("admin.settings.success") });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/session"] });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    },
+    onError: (err: any) => {
+      toast({ title: err.message || t("error"), variant: "destructive" });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword && newPassword !== confirmPassword) {
+      toast({ title: t("admin.settings.passwordMismatch"), variant: "destructive" });
+      return;
+    }
+    if (!newEmail && !newPassword) {
+      toast({ title: t("admin.settings.noChanges"), variant: "destructive" });
+      return;
+    }
+    mutation.mutate({
+      currentPassword,
+      ...(newEmail ? { newEmail } : {}),
+      ...(newPassword ? { newPassword } : {}),
+    });
+  };
+
+  return (
+    <div className="max-w-md">
+      <Card className="p-6">
+        <h2 className="font-serif text-lg font-semibold gold-text mb-1">{t("admin.settings.title")}</h2>
+        <div className="h-px w-8 bg-primary mb-6" />
+
+        <div className="mb-5 p-3 rounded-md bg-muted/50 border border-border/40">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{t("admin.settings.currentEmail")}</p>
+          <p className="text-sm font-medium text-foreground">{currentEmail}</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="currentPassword">{t("admin.settings.currentPassword")} *</Label>
+            <Input
+              id="currentPassword"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              required
+              className="mt-1"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <div className="border-t border-border/30 pt-4">
+            <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">
+              {t("admin.settings.newEmail")} ({t("admin.cancel").toLowerCase() === "cancel" ? "optional" : "opcional"})
+            </p>
+            <Input
+              id="newEmail"
+              type="email"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              placeholder={currentEmail}
+            />
+          </div>
+
+          <div className="border-t border-border/30 pt-4 space-y-3">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
+              {t("admin.settings.newPassword")} ({t("admin.cancel").toLowerCase() === "cancel" ? "optional" : "opcional"})
+            </p>
+            <div>
+              <Input
+                id="newPassword"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="••••••••"
+              />
+            </div>
+            <div>
+              <Label htmlFor="confirmPassword" className="text-xs text-muted-foreground">{t("admin.settings.confirmPassword")}</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                className="mt-1"
+              />
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full mt-2" disabled={!currentPassword || mutation.isPending}>
+            {mutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            {t("admin.settings.saveChanges")}
+          </Button>
+        </form>
+      </Card>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const { t } = useLanguage();
   const [, setLocation] = useLocation();
@@ -750,7 +865,7 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs defaultValue="categories" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-md" data-testid="tabs-admin">
+          <TabsList className="grid w-full grid-cols-4 max-w-lg" data-testid="tabs-admin">
             <TabsTrigger value="categories" className="gap-2" data-testid="tab-categories">
               <Tag className="h-4 w-4" />
               <span className="hidden sm:inline">{t("admin.categories")}</span>
@@ -763,6 +878,10 @@ export default function AdminDashboard() {
               <Megaphone className="h-4 w-4" />
               <span className="hidden sm:inline">{t("admin.promotions")}</span>
             </TabsTrigger>
+            <TabsTrigger value="settings" className="gap-2" data-testid="tab-settings">
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">{t("admin.settings")}</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="categories">
@@ -773,6 +892,9 @@ export default function AdminDashboard() {
           </TabsContent>
           <TabsContent value="promotions">
             <PromotionsTab />
+          </TabsContent>
+          <TabsContent value="settings">
+            <SettingsTab currentEmail={session.email} />
           </TabsContent>
         </Tabs>
       </div>

@@ -160,6 +160,31 @@ export async function registerRoutes(
     });
   });
 
+  app.patch("/api/admin/profile", requireAdmin, async (req, res) => {
+    const { currentPassword, newEmail, newPassword } = req.body;
+    if (!currentPassword) {
+      return res.status(400).json({ message: "Current password is required" });
+    }
+
+    const admin = await storage.getAdminById(req.session.adminId!);
+    if (!admin) return res.status(404).json({ message: "Admin not found" });
+
+    const valid = await bcrypt.compare(currentPassword, admin.password);
+    if (!valid) return res.status(401).json({ message: "Current password is incorrect" });
+
+    const updates: Partial<{ email: string; password: string }> = {};
+    if (newEmail && newEmail !== admin.email) updates.email = newEmail;
+    if (newPassword) updates.password = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+
+    if (Object.keys(updates).length === 0) {
+      return res.json({ email: admin.email });
+    }
+
+    const updated = await storage.updateAdmin(req.session.adminId!, updates);
+    if (updates.email) req.session.adminEmail = updates.email;
+    res.json({ email: updated.email });
+  });
+
   app.post("/api/admin/logout", (req, res) => {
     req.session.destroy((err) => {
       if (err) return res.status(500).json({ message: "Logout failed" });

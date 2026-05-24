@@ -24,7 +24,9 @@ import {
 
 export interface IStorage {
   getAdminByEmail(email: string): Promise<AdminUser | undefined>;
+  getAdminById(id: number): Promise<AdminUser | undefined>;
   createAdmin(data: InsertAdminUser): Promise<AdminUser>;
+  updateAdmin(id: number, data: Partial<{ email: string; password: string }>): Promise<AdminUser>;
 
   getCategories(): Promise<MenuCategory[]>;
   getCategoryById(id: number): Promise<MenuCategory | undefined>;
@@ -60,8 +62,18 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async getAdminById(id: number): Promise<AdminUser | undefined> {
+    const [user] = await db.select().from(adminUsers).where(eq(adminUsers.id, id));
+    return user;
+  }
+
   async createAdmin(data: InsertAdminUser): Promise<AdminUser> {
     const [user] = await db.insert(adminUsers).values(data).returning();
+    return user;
+  }
+
+  async updateAdmin(id: number, data: Partial<{ email: string; password: string }>): Promise<AdminUser> {
+    const [user] = await db.update(adminUsers).set(data).where(eq(adminUsers.id, id)).returning();
     return user;
   }
 
