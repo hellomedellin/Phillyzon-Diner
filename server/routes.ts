@@ -209,6 +209,23 @@ export async function registerRoutes(
     res.status(201).json({ id: user.id, email: user.email, role: user.role });
   });
 
+  app.patch("/api/admin/users/:id", requireSuperAdmin, async (req, res) => {
+    const id = parseInt(req.params.id as string);
+    if (isNaN(id)) return res.status(400).json({ message: "Invalid user ID" });
+    const { email, password } = req.body;
+    const updates: Partial<{ email: string; password: string }> = {};
+    if (email) {
+      const existing = await storage.getAdminByEmail(email);
+      if (existing && existing.id !== id) return res.status(409).json({ message: "Email already in use" });
+      updates.email = email;
+    }
+    if (password) updates.password = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    if (Object.keys(updates).length === 0) return res.status(400).json({ message: "Nothing to update" });
+    const updated = await storage.updateAdmin(id, updates);
+    if (id === req.session.adminId && updates.email) req.session.adminEmail = updates.email;
+    res.json({ id: updated.id, email: updated.email, role: updated.role });
+  });
+
   app.delete("/api/admin/users/:id", requireSuperAdmin, async (req, res) => {
     const id = parseInt(req.params.id as string);
     if (id === req.session.adminId) return res.status(400).json({ message: "Cannot delete your own account" });

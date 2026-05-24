@@ -828,12 +828,71 @@ function SettingsTab({ currentEmail }: { currentEmail: string }) {
   );
 }
 
+function UserEditForm({ user, onDone }: { user: { id: number; email: string; role: string }; onDone: () => void }) {
+  const { toast } = useToast();
+  const [email, setEmail] = useState(user.email);
+  const [password, setPassword] = useState("");
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const payload: Record<string, string> = {};
+      if (email !== user.email) payload.email = email;
+      if (password) payload.password = password;
+      await apiRequest("PATCH", `/api/admin/users/${user.id}`, payload);
+    },
+    onSuccess: () => {
+      toast({ title: "User updated" });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      onDone();
+    },
+    onError: (err: any) => toast({ title: err.message || "Error", variant: "destructive" }),
+  });
+
+  return (
+    <form
+      onSubmit={(e) => { e.preventDefault(); mutation.mutate(); }}
+      className="mt-3 pt-3 border-t border-border/30 space-y-3"
+    >
+      <div>
+        <Label className="text-xs text-muted-foreground">Email</Label>
+        <Input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="mt-1 h-8 text-sm"
+        />
+      </div>
+      <div>
+        <Label className="text-xs text-muted-foreground">New Password <span className="text-muted-foreground/50">(leave blank to keep current)</span></Label>
+        <Input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="••••••••"
+          className="mt-1 h-8 text-sm"
+        />
+      </div>
+      <div className="flex gap-2 pt-1">
+        <Button type="submit" size="sm" disabled={mutation.isPending} className="flex-1">
+          {mutation.isPending && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
+          Save
+        </Button>
+        <Button type="button" size="sm" variant="ghost" onClick={onDone} className="flex-1">
+          Cancel
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 function UsersTab({ currentId }: { currentId?: number }) {
   const { t } = useLanguage();
   const { toast } = useToast();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"kitchen" | "admin">("kitchen");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newRole, setNewRole] = useState<"kitchen" | "admin">("kitchen");
 
   const { data: users = [], isLoading } = useQuery<{ id: number; email: string; role: string }[]>({
     queryKey: ["/api/admin/users"],
@@ -841,14 +900,14 @@ function UsersTab({ currentId }: { currentId?: number }) {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", "/api/admin/users", { email, password, role });
+      await apiRequest("POST", "/api/admin/users", { email: newEmail, password: newPassword, role: newRole });
     },
     onSuccess: () => {
       toast({ title: "User created" });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-      setEmail("");
-      setPassword("");
-      setRole("kitchen");
+      setNewEmail("");
+      setNewPassword("");
+      setNewRole("kitchen");
     },
     onError: (err: any) => toast({ title: err.message || t("error"), variant: "destructive" }),
   });
@@ -880,26 +939,42 @@ function UsersTab({ currentId }: { currentId?: number }) {
         ) : (
           <div className="space-y-2">
             {users.map((user) => (
-              <div key={user.id} className="flex items-center justify-between gap-3 p-3 rounded-md border border-border/40 bg-card">
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded border flex-shrink-0 ${roleBadgeClass(user.role)}`}>
-                    {roleLabel(user.role)}
-                  </span>
-                  <span className="text-sm text-foreground truncate">{user.email}</span>
-                  {user.id === currentId && (
-                    <span className="text-xs text-muted-foreground flex-shrink-0">(you)</span>
-                  )}
+              <div key={user.id} className="p-3 rounded-md border border-border/40 bg-card">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded border flex-shrink-0 ${roleBadgeClass(user.role)}`}>
+                      {roleLabel(user.role)}
+                    </span>
+                    <span className="text-sm text-foreground truncate">{user.email}</span>
+                    {user.id === currentId && (
+                      <span className="text-xs text-muted-foreground flex-shrink-0">(you)</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground/50 hover:text-foreground"
+                      onClick={() => setEditingId(editingId === user.id ? null : user.id)}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    {user.id !== currentId && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-muted-foreground/50 hover:text-destructive"
+                        onClick={() => deleteMutation.mutate(user.id)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                {user.id !== currentId && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-muted-foreground/50 hover:text-destructive flex-shrink-0"
-                    onClick={() => deleteMutation.mutate(user.id)}
-                    disabled={deleteMutation.isPending}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
+
+                {editingId === user.id && (
+                  <UserEditForm user={user} onDone={() => setEditingId(null)} />
                 )}
               </div>
             ))}
@@ -920,8 +995,8 @@ function UsersTab({ currentId }: { currentId?: number }) {
             <Input
               id="new-user-email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
               required
               className="mt-1"
               placeholder="cook@phillyzon.com"
@@ -932,8 +1007,8 @@ function UsersTab({ currentId }: { currentId?: number }) {
             <Input
               id="new-user-password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
               required
               className="mt-1"
               placeholder="••••••••"
@@ -941,7 +1016,7 @@ function UsersTab({ currentId }: { currentId?: number }) {
           </div>
           <div>
             <Label htmlFor="new-user-role">Role</Label>
-            <Select value={role} onValueChange={(v) => setRole(v as "kitchen" | "admin")}>
+            <Select value={newRole} onValueChange={(v) => setNewRole(v as "kitchen" | "admin")}>
               <SelectTrigger id="new-user-role" className="mt-1">
                 <SelectValue />
               </SelectTrigger>
