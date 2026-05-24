@@ -152,7 +152,10 @@ export async function registerRoutes(
     req.session.adminId = admin.id;
     req.session.adminEmail = admin.email;
     req.session.save((err) => {
-      if (err) return res.status(500).json({ message: "Session save failed" });
+      if (err) {
+        console.error("Session save error:", err);
+        return res.status(500).json({ message: "Session save failed" });
+      }
       res.json({ email: admin.email });
     });
   });
