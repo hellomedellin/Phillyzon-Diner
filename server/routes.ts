@@ -58,7 +58,7 @@ function requireAdmin(req: Request, res: Response, next: NextFunction) {
 
 function requireSuperAdmin(req: Request, res: Response, next: NextFunction) {
   if (!req.session.adminId) return res.status(401).json({ message: "Unauthorized" });
-  if (req.session.adminRole !== "admin") return res.status(403).json({ message: "Forbidden" });
+  if ((req.session.adminRole ?? "admin") !== "admin") return res.status(403).json({ message: "Forbidden" });
   next();
 }
 
