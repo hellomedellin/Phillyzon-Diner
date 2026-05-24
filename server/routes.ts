@@ -150,7 +150,10 @@ export async function registerRoutes(
 
     req.session.adminId = admin.id;
     req.session.adminEmail = admin.email;
-    res.json({ email: admin.email });
+    req.session.save((err) => {
+      if (err) return res.status(500).json({ message: "Session save failed" });
+      res.json({ email: admin.email });
+    });
   });
 
   app.post("/api/admin/logout", (req, res) => {
