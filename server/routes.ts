@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 import multer from "multer";
 import express from "express";
 import { storage } from "./storage";
+import { pool } from "./db";
 import { seedDatabase } from "./seed";
 import { uploadToS3, deleteFromS3 } from "./s3";
 import {
@@ -63,7 +64,7 @@ export async function registerRoutes(
     session({
       store:
         process.env.NODE_ENV === "production"
-          ? new PgStore({ conString: process.env.DATABASE_URL, createTableIfMissing: true })
+          ? new PgStore({ pool, createTableIfMissing: true })
           : undefined,
       secret: process.env.SESSION_SECRET!,
       resave: false,
