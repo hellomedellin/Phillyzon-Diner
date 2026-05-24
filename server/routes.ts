@@ -63,7 +63,7 @@ export async function registerRoutes(
     session({
       store:
         process.env.NODE_ENV === "production"
-          ? new PgStore({ conString: process.env.DATABASE_URL })
+          ? new PgStore({ conString: process.env.DATABASE_URL, createTableIfMissing: true })
           : undefined,
       secret: process.env.SESSION_SECRET!,
       resave: false,
