@@ -43,6 +43,7 @@ declare module "express-session" {
   interface SessionData {
     adminId?: number;
     adminEmail?: string;
+    adminRole?: string;
   }
 }
 
@@ -52,6 +53,12 @@ function requireAdmin(req: Request, res: Response, next: NextFunction) {
   if (!req.session.adminId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
+  next();
+}
+
+function requireSuperAdmin(req: Request, res: Response, next: NextFunction) {
+  if (!req.session.adminId) return res.status(401).json({ message: "Unauthorized" });
+  if (req.session.adminRole !== "admin") return res.status(403).json({ message: "Forbidden" });
   next();
 }
 
@@ -151,12 +158,13 @@ export async function registerRoutes(
 
     req.session.adminId = admin.id;
     req.session.adminEmail = admin.email;
+    req.session.adminRole = admin.role;
     req.session.save((err) => {
       if (err) {
         console.error("Session save error:", err);
         return res.status(500).json({ message: "Session save failed" });
       }
-      res.json({ email: admin.email });
+      res.json({ email: admin.email, role: admin.role });
     });
   });
 
@@ -185,6 +193,29 @@ export async function registerRoutes(
     res.json({ email: updated.email });
   });
 
+  app.get("/api/admin/users", requireSuperAdmin, async (_req, res) => {
+    const users = await storage.getAllAdmins();
+    res.json(users);
+  });
+
+  app.post("/api/admin/users", requireSuperAdmin, async (req, res) => {
+    const { email, password, role } = req.body;
+    if (!email || !password) return res.status(400).json({ message: "Email and password required" });
+    if (!["admin", "kitchen"].includes(role)) return res.status(400).json({ message: "Role must be admin or kitchen" });
+    const existing = await storage.getAdminByEmail(email);
+    if (existing) return res.status(409).json({ message: "Email already in use" });
+    const hashed = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    const user = await storage.createAdmin({ email, password: hashed, role });
+    res.status(201).json({ id: user.id, email: user.email, role: user.role });
+  });
+
+  app.delete("/api/admin/users/:id", requireSuperAdmin, async (req, res) => {
+    const id = parseInt(req.params.id as string);
+    if (id === req.session.adminId) return res.status(400).json({ message: "Cannot delete your own account" });
+    await storage.deleteAdmin(id);
+    res.json({ message: "Deleted" });
+  });
+
   app.post("/api/admin/logout", (req, res) => {
     req.session.destroy((err) => {
       if (err) return res.status(500).json({ message: "Logout failed" });
@@ -196,7 +227,7 @@ export async function registerRoutes(
     if (!req.session.adminId) {
       return res.status(401).json({ message: "Not authenticated" });
     }
-    res.json({ email: req.session.adminEmail });
+    res.json({ id: req.session.adminId, email: req.session.adminEmail, role: req.session.adminRole ?? "admin" });
   });
 
   app.get("/api/promotions", requireAdmin, async (_req, res) => {

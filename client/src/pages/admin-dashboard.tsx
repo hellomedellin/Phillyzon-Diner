@@ -828,19 +828,152 @@ function SettingsTab({ currentEmail }: { currentEmail: string }) {
   );
 }
 
+function UsersTab({ currentId }: { currentId?: number }) {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"kitchen" | "admin">("kitchen");
+
+  const { data: users = [], isLoading } = useQuery<{ id: number; email: string; role: string }[]>({
+    queryKey: ["/api/admin/users"],
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("POST", "/api/admin/users", { email, password, role });
+    },
+    onSuccess: () => {
+      toast({ title: "User created" });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      setEmail("");
+      setPassword("");
+      setRole("kitchen");
+    },
+    onError: (err: any) => toast({ title: err.message || t("error"), variant: "destructive" }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/admin/users/${id}`);
+    },
+    onSuccess: () => {
+      toast({ title: t("admin.deleted") });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+    },
+    onError: (err: any) => toast({ title: err.message || t("error"), variant: "destructive" }),
+  });
+
+  const roleLabel = (r: string) => r === "admin" ? "Admin" : "Kitchen";
+  const roleBadgeClass = (r: string) =>
+    r === "admin"
+      ? "bg-primary/15 text-primary border-primary/30"
+      : "bg-blue-500/15 text-blue-400 border-blue-500/30";
+
+  return (
+    <div className="space-y-8 max-w-xl">
+      {/* Existing users */}
+      <div>
+        <h3 className="font-serif text-base font-semibold text-foreground/80 mb-3">Team Members</h3>
+        {isLoading ? (
+          <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
+        ) : (
+          <div className="space-y-2">
+            {users.map((user) => (
+              <div key={user.id} className="flex items-center justify-between gap-3 p-3 rounded-md border border-border/40 bg-card">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded border flex-shrink-0 ${roleBadgeClass(user.role)}`}>
+                    {roleLabel(user.role)}
+                  </span>
+                  <span className="text-sm text-foreground truncate">{user.email}</span>
+                  {user.id === currentId && (
+                    <span className="text-xs text-muted-foreground flex-shrink-0">(you)</span>
+                  )}
+                </div>
+                {user.id !== currentId && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground/50 hover:text-destructive flex-shrink-0"
+                    onClick={() => deleteMutation.mutate(user.id)}
+                    disabled={deleteMutation.isPending}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Add new user */}
+      <Card className="p-5">
+        <h3 className="font-serif text-base font-semibold gold-text mb-1">Add New User</h3>
+        <div className="h-px w-8 bg-primary mb-5" />
+        <form
+          onSubmit={(e) => { e.preventDefault(); createMutation.mutate(); }}
+          className="space-y-4"
+        >
+          <div>
+            <Label htmlFor="new-user-email">Email</Label>
+            <Input
+              id="new-user-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="mt-1"
+              placeholder="cook@phillyzon.com"
+            />
+          </div>
+          <div>
+            <Label htmlFor="new-user-password">Password</Label>
+            <Input
+              id="new-user-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="mt-1"
+              placeholder="••••••••"
+            />
+          </div>
+          <div>
+            <Label htmlFor="new-user-role">Role</Label>
+            <Select value={role} onValueChange={(v) => setRole(v as "kitchen" | "admin")}>
+              <SelectTrigger id="new-user-role" className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="kitchen">Kitchen — orders only</SelectItem>
+                <SelectItem value="admin">Admin — full access</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Button type="submit" className="w-full" disabled={createMutation.isPending}>
+            {createMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            <Plus className="h-4 w-4 mr-2" />
+            Create User
+          </Button>
+        </form>
+      </Card>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const { t } = useLanguage();
   const [, setLocation] = useLocation();
 
-  const { data: session, isLoading } = useQuery<{ email: string } | null>({
+  const { data: session, isLoading } = useQuery<{ id: number; email: string; role: string } | null>({
     queryKey: ["/api/admin/session"],
     retry: false,
   });
 
   useEffect(() => {
-    if (!isLoading && !session) {
-      setLocation("/admin/login");
-    }
+    if (!isLoading && !session) setLocation("/admin/login");
+    if (!isLoading && session && session.role === "kitchen") setLocation("/admin/orders");
   }, [isLoading, session, setLocation]);
 
   if (isLoading) {
@@ -865,7 +998,7 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs defaultValue="categories" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 max-w-lg" data-testid="tabs-admin">
+          <TabsList className="grid w-full grid-cols-5 max-w-xl" data-testid="tabs-admin">
             <TabsTrigger value="categories" className="gap-2" data-testid="tab-categories">
               <Tag className="h-4 w-4" />
               <span className="hidden sm:inline">{t("admin.categories")}</span>
@@ -882,6 +1015,10 @@ export default function AdminDashboard() {
               <Settings className="h-4 w-4" />
               <span className="hidden sm:inline">{t("admin.settings")}</span>
             </TabsTrigger>
+            <TabsTrigger value="users" className="gap-2" data-testid="tab-users">
+              <Tag className="h-4 w-4" />
+              <span className="hidden sm:inline">Users</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="categories">
@@ -895,6 +1032,9 @@ export default function AdminDashboard() {
           </TabsContent>
           <TabsContent value="settings">
             <SettingsTab currentEmail={session.email} />
+          </TabsContent>
+          <TabsContent value="users">
+            <UsersTab currentId={session.id} />
           </TabsContent>
         </Tabs>
       </div>

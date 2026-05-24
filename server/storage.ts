@@ -25,8 +25,10 @@ import {
 export interface IStorage {
   getAdminByEmail(email: string): Promise<AdminUser | undefined>;
   getAdminById(id: number): Promise<AdminUser | undefined>;
+  getAllAdmins(): Promise<Omit<AdminUser, "password">[]>;
   createAdmin(data: InsertAdminUser): Promise<AdminUser>;
   updateAdmin(id: number, data: Partial<{ email: string; password: string }>): Promise<AdminUser>;
+  deleteAdmin(id: number): Promise<void>;
 
   getCategories(): Promise<MenuCategory[]>;
   getCategoryById(id: number): Promise<MenuCategory | undefined>;
@@ -73,9 +75,22 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async getAllAdmins(): Promise<Omit<AdminUser, "password">[]> {
+    const users = await db.select({
+      id: adminUsers.id,
+      email: adminUsers.email,
+      role: adminUsers.role,
+    }).from(adminUsers).orderBy(adminUsers.id);
+    return users;
+  }
+
   async updateAdmin(id: number, data: Partial<{ email: string; password: string }>): Promise<AdminUser> {
     const [user] = await db.update(adminUsers).set(data).where(eq(adminUsers.id, id)).returning();
     return user;
+  }
+
+  async deleteAdmin(id: number): Promise<void> {
+    await db.delete(adminUsers).where(eq(adminUsers.id, id));
   }
 
   async getCategories(): Promise<MenuCategory[]> {

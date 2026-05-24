@@ -22,8 +22,9 @@ export default function AdminLogin() {
     e.preventDefault();
     setLoading(true);
     try {
-      await apiRequest("POST", "/api/admin/login", { email, password });
-      setLocation("/admin/dashboard");
+      const res = await apiRequest("POST", "/api/admin/login", { email, password });
+      const data = await res.json();
+      setLocation(data.role === "kitchen" ? "/admin/orders" : "/admin/dashboard");
     } catch (err: any) {
       toast({
         title: "Error",

@@ -87,6 +87,9 @@ app.use((req, res, next) => {
 (async () => {
   if (process.env.NODE_ENV === "production") {
     await pool.query(`
+      ALTER TABLE admin_users ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'admin';
+    `);
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS "session" (
         "sid" varchar NOT NULL COLLATE "default",
         "sess" json NOT NULL,

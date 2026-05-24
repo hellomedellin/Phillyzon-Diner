@@ -7,6 +7,7 @@ export const adminUsers = pgTable("admin_users", {
   id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
+  role: text("role").notNull().default("admin"),
 });
 
 export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({ id: true });
