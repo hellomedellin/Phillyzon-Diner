@@ -71,7 +71,7 @@ export default function VisitPage() {
                 </p>
               </div>
               <a
-                href="https://wa.me/573001234567"
+                href="https://wa.me/573016926846"
                 target="_blank"
                 rel="noopener noreferrer"
               >
