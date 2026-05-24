@@ -275,13 +275,13 @@ function PromotionsPreview() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="flex flex-wrap justify-center gap-8">
           {displayPromos.map((promo) => {
             const urgency = getUrgencyLabel(promo, lang);
             return (
               <Card
                 key={promo.id}
-                className="p-0 overflow-hidden hover-elevate group border-primary/10"
+                className="w-full md:w-80 p-0 overflow-hidden hover-elevate group border-primary/10"
                 data-testid={`card-home-promo-${promo.id}`}
               >
                 {promo.imageUrl && (
